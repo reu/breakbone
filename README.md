@@ -13,7 +13,7 @@ Below, is the prioriy list of what should be implemented next:
 * ~~Basic data structures~~
 * ~~Input management~~
 * ~~Entity system~~
-* Asset management (images and audio for now)
+* ~~Asset management (images and audio for now)~~
 * Image manipulation (flip, tile generation)
 * Sprite based animation component and system
 * Background maps
