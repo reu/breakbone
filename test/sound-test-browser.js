@@ -1,4 +1,7 @@
 describe("bb.Sound", function() {
+  // Phantomjs doesn't support Audio tag =[
+  if (typeof Audio == "undefined") return;
+
   describe("#init", function() {
     it("accepts an url", function() {
       var sound = new bb.Sound("/lol.ogg");

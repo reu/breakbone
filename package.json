@@ -25,6 +25,7 @@
     "mocha": "latest",
     "expect.js": "latest",
     "uglify-js": "latest",
+    "mocha-phantomjs": "latest",
     "serve": "*"
   }
 }
