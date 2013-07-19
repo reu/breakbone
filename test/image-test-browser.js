@@ -15,7 +15,7 @@ describe("bb.Image", function() {
     var image;
 
     beforeEach(function() {
-      image = new bb.Image("/test/browser/fixtures/hyptosis-sprite.png");
+      image = new bb.Image("fixtures/hyptosis-sprite.png");
     });
 
     it("calls the callback function", function(done) {

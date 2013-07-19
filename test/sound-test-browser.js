@@ -15,7 +15,7 @@ describe("bb.Sound", function() {
     var sound;
 
     beforeEach(function() {
-      sound = new bb.Sound("/test/browser/fixtures/yeah.ogg");
+      sound = new bb.Sound("fixtures/yeah.ogg");
     });
 
     it("calls the callback function", function(done) {
