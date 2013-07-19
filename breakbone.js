@@ -374,11 +374,74 @@ bb.Entity = bb.Class.extend({
   },
 });
 /**
- * The Input class is responsible to organize and capture input
- * from the various sorces (keyboard, mouse, touch devices, gamepads).
+ * Represent an image asset.
+ *
+ * @class bb.Image
+ * @property {Object} element
+ * @property {Number} width
+ * @property {Number} height
+ */
+bb.Image = bb.Class.extend({
+  /**
+   * @constructor
+   * @param {String} url the path to the image
+   */
+  init: function(url) {
+    this.url = url;
+    this.isLoaded = false;
+  },
+
+  /**
+   * Loads a image and executes the callback when loaded.
+   *
+   * @method load
+   * @param {Function} onLoadCallback callback that will be
+   *     called when the image is loaded
+   */
+  load: function(onLoadCallback) {
+    if (this.isLoaded) {
+      if (onLoadCallback) {
+        onLoadCallback(this);
+      }
+    } else if (!this.isLoaded) {
+      this.onLoadCallback = onLoadCallback;
+
+      var image = new Image;
+      image.onload = this.onImageLoaded.bind(this);
+      image.onerror = this.onLoadError.bind(this);
+      image.src = this.url;
+    }
+  },
+
+  /**
+   * @method onImageLoaded
+   * @private
+   */
+  onImageLoaded: function(event) {
+    this.element = event.srcElement;
+    this.width = this.element.width;
+    this.height = this.element.height;
+    this.isLoaded = true;
+
+    if (this.onLoadCallback) {
+      this.onLoadCallback(this);
+    }
+  },
+
+  /**
+   * @method onLoadError
+   * @private
+   */
+  onLoadError: function() {
+    throw "Error while loading image: " + this.url;
+  }
+});
+/**
+ * The Input class is organizes and capture input from many
+ * input sorces, such as the keyboard, mouse, touch screens
+ * and gamepads.
  *
  * @class bb.Input
- *
  * @property {Object} mouse the current mouse position.
  * @property {Object} pmouse the past mouse position.
  */
@@ -820,9 +883,9 @@ bb.World = bb.Class.extend({
 /**
  * The base System class, that already handles all the world events.
  *
- * A System processes the components of entities and manipuletes them.
+ * A System processes the components of entities and manipulates them.
  * We can say that a System is where we define the "how" the things works,
- * differente of the components, where we define the "what" the things are.
+ * different from the components, where we define the "what" the things are.
  *
  * @class bb.System
  * @example
