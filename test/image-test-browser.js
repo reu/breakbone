@@ -24,24 +24,27 @@ describe("bb.Image", function() {
       });
     });
 
-    it("saves the image element", function() {
+    it("saves the image element", function(done) {
       expect(image.element).to.be(undefined);
 
       image.load(function() {
         expect(image.element).to.not.be(undefined);
+        done();
       });
     });
 
-    it("stores that the image is loaded", function() {
+    it("stores that the image is loaded", function(done) {
       image.load(function() {
         expect(image.isLoaded).to.be(true);
+        done();
       });
     });
 
-    it("saves the size of the image", function() {
+    it("saves the size of the image", function(done) {
       image.load(function() {
         expect(image.width).to.be.greaterThan(0);
         expect(image.height).to.be.greaterThan(0);
+        done();
       });
     });
 
@@ -53,7 +56,7 @@ describe("bb.Image", function() {
     });
 
     context("when the image is already loaded", function() {
-      it("calls the callback function", function() {
+      it("calls the callback function", function(done) {
         image.load(function() {
           done();
         });
