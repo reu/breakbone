@@ -509,6 +509,15 @@ bb.Input = bb.Class.extend({
   },
 
   /**
+   * Unbinds a given key
+   * @method unbind
+   * @param {bb.KEY} key the key that will be unbinded
+   */
+  unbind: function unbind(key) {
+    delete this.bindings[key];
+  },
+
+  /**
    * Checks if a given action is active.
    *
    * @method isPressed
