@@ -26,7 +26,6 @@
     "expect.js": "latest",
     "sinon": "latest",
     "uglify-js": "latest",
-    "mocha-phantomjs": "latest",
-    "serve": "*"
+    "mocha-phantomjs": "latest"
   }
 }

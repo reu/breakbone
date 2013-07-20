@@ -10,9 +10,6 @@ test:
 	@./node_modules/.bin/mocha --require ./test/support.js ./test/*-test.js ./test/**/*-test.js
 
 test-browser:
-	@./node_modules/.bin/serve .
-
-test-full:
 	@./node_modules/.bin/mocha-phantomjs -p phantomjs test/browser/index.html
 
 .PHONY: concatenate minify build test test-browser

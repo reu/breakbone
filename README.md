@@ -37,8 +37,8 @@ Then, just run
 
 `make test`
 
-You can also run the tests using a browser, just type:
+There are some tests that requires a browser to run. You can either open the `test/browser/index.html` or run inside a virtual one by typing:
 
 `make test-browser`
 
-And then access: http://localhost:3000/test/browser
+Note this will require [PhantomJS](http://phantomjs.org/) to be installed on your system to work.
