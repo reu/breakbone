@@ -9,13 +9,5 @@
  * @property {String} type
  */
 bb.Component = bb.Class.extend({
-  type: "component",
-
-  /**
-   * @constructor
-   * @param {String} type
-   */
-  init: function(type) {
-    this.type = type;
-  }
+  type: "component"
 });

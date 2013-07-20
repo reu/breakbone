@@ -1,6 +1,14 @@
 describe("bb.Entity", function() {
   var world;
 
+  var VelocityComponent = bb.Component.extend({
+    type: "velocity"
+  });
+
+  var PositionComponent = bb.Component.extend({
+    type: "position"
+  });
+
   beforeEach(function() {
     world = new bb.World;
   });
@@ -20,8 +28,8 @@ describe("bb.Entity", function() {
     var velocityComponent, positionComponent;
 
     beforeEach(function() {
-      velocityComponent = new bb.Component("velocity");
-      positionComponent = new bb.Component("position");
+      velocityComponent = new VelocityComponent;
+      positionComponent = new PositionComponent;
     });
 
     it("adds a new component to the entity", function() {
@@ -40,7 +48,7 @@ describe("bb.Entity", function() {
     });
 
     it("replaces the component if one of the same type is already added", function() {
-      var otherVelocityComponent = new bb.Component("velocity");
+      var otherVelocityComponent = new VelocityComponent;
       var entity = new bb.Entity(world);
 
       entity.addComponent(velocityComponent);
@@ -53,8 +61,8 @@ describe("bb.Entity", function() {
 
   describe("#hasComponent", function() {
     it("is true when the entity has the given component type", function() {
-      var velocity = new bb.Component("velocity");
-      var position = new bb.Component("position");
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
 
       var entity = new bb.Entity(world);
       entity.addComponent(velocity);
@@ -66,8 +74,8 @@ describe("bb.Entity", function() {
 
   describe("#getComponent", function() {
     it("returns the component of the given type", function() {
-      var velocity = new bb.Component("velocity");
-      var position = new bb.Component("position");
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
 
       var entity = new bb.Entity(world);
       entity.addComponent(velocity);
@@ -80,8 +88,8 @@ describe("bb.Entity", function() {
 
   describe("#removeComponent", function() {
     it("removes the given component", function() {
-      var velocity = new bb.Component("velocity");
-      var position = new bb.Component("position");
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
 
       var entity = new bb.Entity(world);
       entity.addComponent(velocity);
@@ -96,22 +104,22 @@ describe("bb.Entity", function() {
 
   describe("#removeComponentByType", function() {
     it("removes the given component", function() {
-      var velocity = new bb.Component("velocity");
-      var position = new bb.Component("position");
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
 
       var entity = new bb.Entity(world);
       entity.addComponent(velocity);
       entity.addComponent(position);
 
-      entity.removeComponent(velocity);
+      entity.removeComponent("velocity");
 
       expect(entity.hasComponent("velocity")).to.be(false);
       expect(entity.hasComponent("position")).to.be(true);
     });
 
     it("removes the given component type", function() {
-      var velocity = new bb.Component("velocity");
-      var position = new bb.Component("position");
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
 
       var entity = new bb.Entity(world);
       entity.addComponent(velocity);

@@ -7,6 +7,22 @@ describe("bb.World", function() {
     }
   });
 
+  var VelocityComponent = bb.Component.extend({
+    type: "velocity"
+  });
+
+  var PositionComponent = bb.Component.extend({
+    type: "position"
+  });
+
+  var TransformComponent = bb.Component.extend({
+    type: "transform"
+  });
+
+  var AiComponent = bb.Component.extend({
+    type: "ai"
+  });
+
   beforeEach(function() {
     world = new bb.World;
   });
@@ -35,16 +51,16 @@ describe("bb.World", function() {
   });
 
   describe("#addEntityComponent", function() {
-    var player, enemy, velocityComponent, transformComponent, spatialComponent, aiComponent;
+    var player, enemy, velocityComponent, transformComponent, positionComponent, aiComponent;
 
     beforeEach(function() {
       player = new bb.Entity(world);
       enemy = new bb.Entity(world);
 
-      velocityComponent = new bb.Component("velocity");
-      transformComponent = new bb.Component("transform");
-      spatialComponent = new bb.Component("spatial");
-      aiComponent = new bb.Component("ai");
+      velocityComponent = new VelocityComponent;
+      transformComponent = new TransformComponent;
+      positionComponent = new PositionComponent;
+      aiComponent = new AiComponent;
     });
 
     it("adds a component to the right entity", function() {
@@ -55,18 +71,18 @@ describe("bb.World", function() {
 
       expect(world.getEntityComponents(player)).to.contain(velocityComponent);
       expect(world.getEntityComponents(player)).to.contain(transformComponent);
-      expect(world.getEntityComponents(player)).to.not.contain(spatialComponent);
+      expect(world.getEntityComponents(player)).to.not.contain(positionComponent);
       expect(world.getEntityComponents(player)).to.not.contain(aiComponent);
 
       expect(world.getEntityComponents(enemy)).to.not.contain(velocityComponent);
       expect(world.getEntityComponents(enemy)).to.not.contain(transformComponent);
-      expect(world.getEntityComponents(enemy)).to.not.contain(spatialComponent);
+      expect(world.getEntityComponents(enemy)).to.not.contain(positionComponent);
       expect(world.getEntityComponents(enemy)).to.contain(aiComponent);
     });
 
     it("replaces components of the same type", function() {
-      var velocityComponent1 = new bb.Component("velocity");
-      var velocityComponent2 = new bb.Component("velocity");
+      var velocityComponent1 = new VelocityComponent;
+      var velocityComponent2 = new VelocityComponent;
 
       world.addEntityComponent(player, velocityComponent1);
       world.addEntityComponent(player, velocityComponent2);
@@ -77,16 +93,16 @@ describe("bb.World", function() {
   });
 
   describe("#removeEntityComponent", function() {
-    var player, enemy, velocityComponent, transformComponent, spatialComponent, aiComponent;
+    var player, enemy, velocityComponent, transformComponent, positionComponent, aiComponent;
 
     beforeEach(function() {
       player = new bb.Entity(world);
       enemy = new bb.Entity(world);
 
-      velocityComponent = new bb.Component("velocity");
-      transformComponent = new bb.Component("transform");
-      spatialComponent = new bb.Component("spatial");
-      aiComponent = new bb.Component("ai");
+      velocityComponent = new VelocityComponent;
+      transformComponent = new TransformComponent;
+      positionComponent = new PositionComponent;
+      aiComponent = new AiComponent;
     });
 
     it("removes a component from an entity", function() {
@@ -109,8 +125,8 @@ describe("bb.World", function() {
   describe("#getEntityComponent", function() {
     it("returns the entity component type", function() {
       var player = new bb.Entity(world);
-      var velocityComponent = new bb.Component("velocity");
-      var positionComponent = new bb.Component("position");
+      var velocityComponent = new VelocityComponent;
+      var positionComponent = new PositionComponent;
 
       world.addEntityComponent(player, velocityComponent)
       world.addEntityComponent(player, positionComponent)
