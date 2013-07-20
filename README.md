@@ -37,8 +37,8 @@ Then, just run
 
 `make test`
 
-There are some tests that requires a browser to run. You can either open the `test/browser/index.html` or run inside a virtual one by typing:
+There are some tests that requires a browser to run. You can either open the `test/browser/index.html` file on your own browser or run the tests inside a headless browser by typing:
 
 `make test-browser`
 
-Note this will require [PhantomJS](http://phantomjs.org/) to be installed on your system to work.
+Note that this will require [PhantomJS](http://phantomjs.org/) to be installed on your system to work.
