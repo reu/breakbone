@@ -57,6 +57,12 @@ describe("bb.Entity", function() {
       entity.addComponent(otherVelocityComponent);
       expect(entity.getComponent("velocity")).to.be(otherVelocityComponent);
     });
+
+    it("adds a property accessor to the component", function() {
+      var entity = new bb.Entity(world);
+      entity.addComponent(velocityComponent);
+      expect(entity.velocity).to.be(velocityComponent);
+    });
   });
 
   describe("#hasComponent", function() {
@@ -129,6 +135,16 @@ describe("bb.Entity", function() {
 
       expect(entity.hasComponent("velocity")).to.be(true);
       expect(entity.hasComponent("position")).to.be(false);
+    });
+
+    it("removes the component property", function() {
+      var velocity = new VelocityComponent;
+      var entity = new bb.Entity(world);
+
+      entity.addComponent(velocity);
+      entity.removeComponent("velocity");
+
+      expect(entity).to.not.have.property("velocity");
     });
   });
 });

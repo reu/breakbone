@@ -35,6 +35,7 @@ bb.Entity = bb.Class.extend({
    */
   addComponent: function(component) {
     this.world.addEntityComponent(this, component);
+    this[component.type] = component;
     return this;
   },
 
@@ -72,6 +73,8 @@ bb.Entity = bb.Class.extend({
     }
 
     this.world.removeEntityComponent(this, component);
+    delete this[component.type];
+
     return this;
   },
 
