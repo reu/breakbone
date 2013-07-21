@@ -467,14 +467,14 @@ bb.Input = bb.Class.extend({
   /**
    * Checks if a given action is active.
    *
-   * @method isPressed
+   * @method isPressing
    * @param {String} action
-   * @returns {Boolean} the actions is active or not.
+   * @returns {Boolean} the action is active or not.
    *
    * @example
-   *     input.isPressed("jump");
+   *     input.isPressing("jump");
    */
-  isPressed: function(action) {
+  isPressing: function(action) {
     for (var key in this.activeCommands) {
       if (this.activeCommands[key] && this.bindings[key] == action)
         return true;
