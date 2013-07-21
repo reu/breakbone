@@ -71,12 +71,40 @@ bb.Class = (function() {
   var Class = function Class() {}
 
   /**
+   * Reopens the class and inject new methods on it.
+   *
+   * @method reopen
+   * @param {Object} properties the properties to inject on the class
+   */
+  Class.reopen = function(properties) {
+    for (var name in properties) {
+      var property = properties[name];
+      var currentProperty = this.prototype[name]
+
+      if (typeof property == "function" && typeof currentProperty == "function") {
+        this.prototype[name] = (function(parentFn, fn) {
+          return function() {
+            var tmp = this.parent;
+            this.parent = parentFn;
+            var ret = fn.apply(this, arguments);
+            this.parent = tmp;
+            if (typeof this.parent ==  "undefined") delete this.parent;
+            return ret;
+          }
+        })(currentProperty, property);
+      } else {
+        this.prototype[name] = property;
+      }
+    }
+  }
+
+  /**
    * Extends a class.
    * You can call the function `this.parent` when overriding methods
    * to refer to the same method of the superclass.
    *
    * @method extend
-   * @property {Object} properties the properties of the new class
+   * @param {Object} properties the properties of the new class
    * @example
    *     var Person = bb.Class.extend({
    *       init: function(name) {
@@ -134,6 +162,7 @@ bb.Class = (function() {
     Class.prototype = child;
     Class.prototype.constructor = Class;
     Class.extend = bb.Class.extend;
+    Class.reopen = bb.Class.reopen;
 
     return Class;
   }

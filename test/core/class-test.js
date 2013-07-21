@@ -68,4 +68,48 @@ describe("bb.Class", function() {
       new Class("Hi");
     });
   });
+
+  describe(".reopen", function() {
+    it("lets you redefine a method", function() {
+      var Person = bb.Class.extend({
+        name: function() { return "Break" }
+      });
+
+      Person.reopen({
+        name: function() { return "Bone" }
+      });
+
+      var instance = new Person;
+
+      expect(instance.name()).to.equal("Bone");
+    });
+
+    it("lets you redefine a property", function() {
+      var Person = bb.Class.extend({
+        name: "Break"
+      });
+
+      Person.reopen({
+        name: "Bone"
+      });
+
+      var instance = new Person;
+
+      expect(instance.name).to.equal("Bone");
+    });
+
+    it("lets you call the parent method", function() {
+      var Person = bb.Class.extend({
+        name: function() { return "Break" }
+      });
+
+      Person.reopen({
+        name: function() { return this.parent() + "Bone" }
+      });
+
+      var instance = new Person;
+
+      expect(instance.name()).to.equal("BreakBone");
+    });
+  });
 });
