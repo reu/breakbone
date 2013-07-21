@@ -9,7 +9,7 @@ minify:
 test:
 	@./node_modules/.bin/mocha --require ./test/support.js ./test/*-test.js ./test/**/*-test.js
 
-test-browser:
+test-browser: build
 	@./node_modules/.bin/mocha-phantomjs -p phantomjs test/browser/index.html
 
 .PHONY: concatenate minify build test test-browser
