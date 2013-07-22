@@ -16,14 +16,14 @@ bb.World = (function() {
     init: function() {
       this.systems = [];
 
-      this.entities = [];
-      this.disabledEntities = [];
+      this.entities = new bb.Set;
+      this.disabledEntities = new bb.Set;
 
-      this.addedEntities = [];
-      this.changedEntities = [];
-      this.disabledEntities = [];
-      this.enabledEntities = [];
-      this.removedEntities = [];
+      this.addedEntities = new bb.Set;
+      this.changedEntities = new bb.Set;
+      this.disabledEntities = new bb.Set;
+      this.enabledEntities = new bb.Set;
+      this.removedEntities = new bb.Set;
 
       this.components = {};
     },
@@ -44,11 +44,13 @@ bb.World = (function() {
      */
     check: function(entities, action) {
       if (entities.length) {
-        for (var i = 0, length = entities.length; i < length; i++) {
-          for (var j = 0; j < this.systems.length; j++) {
-            action(entities[i], this.systems[i]);
-          }
-        }
+        var systems = this.systems;
+
+        entities.forEach(function(entity) {
+          systems.forEach(function(system) {
+            action(entity, system);
+          });
+        });
 
         entities.clear();
       }
@@ -107,17 +109,19 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     addEntity: function(entity) {
-      this.entities.push(entity);
-      this.addedEntities.push(entity);
+      this.entities.add(entity);
+      this.addedEntities.add(entity);
     },
 
     /**
      * Adds a system to the world
      * @method addSystem
      * @param {bb.System} system
+     * @return {bb.World} this world
      */
     addSystem: function(system) {
       this.systems.push(system);
+      return this;
     },
 
     /**
@@ -127,7 +131,7 @@ bb.World = (function() {
      */
     removeEntity: function(entity) {
       this.entities.remove(entity);
-      this.removedEntities.push(entity);
+      this.removedEntities.add(entity);
     },
 
     /**
@@ -136,7 +140,7 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     changeEntity: function(entity) {
-      this.changedEntities.push(entity);
+      this.changedEntities.add(entity);
     },
 
     /**
@@ -145,7 +149,7 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     enableEntity: function(entity) {
-      this.enabledEntities.push(entity);
+      this.enabledEntities.add(entity);
     },
 
     /**
@@ -154,7 +158,7 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     disableEntity: function(entity) {
-      this.disabledEntities.push(entity);
+      this.disabledEntities.add(entity);
     },
 
     /**

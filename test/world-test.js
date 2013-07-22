@@ -30,7 +30,7 @@ describe("bb.World", function() {
   describe("#createEntity", function() {
     it("creates a entity and add it to the world", function() {
       var entity = world.createEntity();
-      expect(world.entities).to.contain(entity);
+      expect(world.entities.contains(entity)).to.be(true);
     });
   });
 
@@ -38,7 +38,7 @@ describe("bb.World", function() {
     it("adds a entity to the world", function() {
       var entity = new bb.Entity(world);
       world.addEntity(entity);
-      expect(world.entities).to.contain(entity);
+      expect(world.entities.contains(entity)).to.be(true);
     });
   });
 
@@ -140,7 +140,7 @@ describe("bb.World", function() {
     it("add the entity to the changed entities", function() {
       var entity = world.createEntity();
       world.changeEntity(entity);
-      expect(world.changedEntities).to.contain(entity);
+      expect(world.changedEntities.contains(entity)).to.be(true);
     });
   });
 
@@ -148,7 +148,7 @@ describe("bb.World", function() {
     it("add the entity to the removed entities", function() {
       var entity = world.createEntity();
       world.removeEntity(entity);
-      expect(world.removedEntities).to.contain(entity);
+      expect(world.removedEntities.contains(entity)).to.be(true);
     });
   });
 
@@ -156,7 +156,7 @@ describe("bb.World", function() {
     it("add the entity to the enabled entities", function() {
       var entity = world.createEntity();
       world.enableEntity(entity);
-      expect(world.enabledEntities).to.contain(entity);
+      expect(world.enabledEntities.contains(entity)).to.be(true);
     });
   });
 
@@ -164,7 +164,7 @@ describe("bb.World", function() {
     it("add the entity to the disabled entities", function() {
       var entity = world.createEntity();
       world.disableEntity(entity);
-      expect(world.disabledEntities).to.contain(entity);
+      expect(world.disabledEntities.contains(entity)).to.be(true);
     });
   });
 
