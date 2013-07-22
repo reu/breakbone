@@ -1,41 +1,27 @@
 var Spatial = bb.Component.extend({
   type: "spatial",
 
-  init: function(x, y) {
+  init: function(x, y, radius) {
     this.x = x || 0;
     this.y = y || 0;
+
+    this.radius = radius || 10;
 
     this.rotation = 0;
   },
 
   rotateLeft: function(angle) {
-    this.rotation -= angle || 0.008;
+    this.rotation -= angle || 0.03;
   },
 
   rotateRight: function(angle) {
-    this.rotation += angle || 0.008;
+    this.rotation += angle || 0.03;
   }
 });
 
-var Velocity = bb.Component.extend({
+var Velocity = bb.Vector.extend({
   type: "velocity",
-
-  init: function(x, y) {
-    this.x = x || 0;
-    this.y = y || 0;
-  },
-
-  limit: function(max) {
-    var length = Math.sqrt(this.x * this.x, this.y * this.y);
-
-    if (length > max) {
-      this.x /= length;
-      this.y /= length;
-
-      this.x *= max;
-      this.y *= max;
-    }
-  }
+  damping: 0.995
 });
 
 var ThrustEngine = bb.Component.extend({
@@ -97,9 +83,7 @@ var MovementSystem = bb.System.extend({
   },
 
   integrate: function(entity) {
-    entity.velocity.x *= 0.995;
-    entity.velocity.y *= 0.995;
-
+    entity.velocity.multiply(entity.velocity.damping);
     entity.velocity.limit(4);
 
     entity.spatial.x += entity.velocity.x;
@@ -260,16 +244,16 @@ var Game = bb.Class.extend({
   reset: function() {
     var world = new bb.World;
 
-    var input = new bb.InputComponent;
-    input.add(bb.KEY.LEFT, "turn left")
-         .add(bb.KEY.RIGHT, "turn right")
-         .add(bb.KEY.UP, "thrust")
-         .add(bb.KEY.SPACE, "shoot");
+    var commands = new bb.InputComponent;
+    commands.add(bb.KEY.LEFT, "turn left")
+            .add(bb.KEY.RIGHT, "turn right")
+            .add(bb.KEY.UP, "thrust")
+            .add(bb.KEY.SPACE, "shoot");
 
     var player = world.createEntity();
     player.addComponent(new Spatial(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2))
           .addComponent(new Velocity)
-          .addComponent(input)
+          .addComponent(commands)
           .addComponent(new ThrustEngine)
           .addComponent(new Renderable);
 
