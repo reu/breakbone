@@ -87,6 +87,21 @@ var Renderable = bb.Component.extend({
   type: "renderable"
 });
 
+var ThrustEngineSystem = bb.System.extend({
+  allowEntity: function(entity) {
+    return entity.hasComponent("thrustEngine") && entity.hasComponent("velocity") && entity.hasComponent("spatial");
+  },
+
+  process: function() {
+    this.entities.forEach(function(ship) {
+      if (ship.thrustEngine.on) {
+        ship.velocity.x += Math.cos(ship.spatial.rotation) * 0.1;
+        ship.velocity.y += Math.sin(ship.spatial.rotation) * 0.1;
+      }
+    });
+  }
+});
+
 var MovementSystem = bb.System.extend({
   allowEntity: function(entity) {
     return entity.hasComponent("velocity") && entity.hasComponent("spatial");
@@ -97,10 +112,6 @@ var MovementSystem = bb.System.extend({
   },
 
   integrate: function(entity) {
-    if (entity.hasComponent("thrustEngine")) {
-      this.accelerateShip(entity);
-    }
-
     entity.velocity.x *= 0.995;
     entity.velocity.y *= 0.995;
 
@@ -108,13 +119,6 @@ var MovementSystem = bb.System.extend({
 
     entity.spatial.x += entity.velocity.x;
     entity.spatial.y += entity.velocity.y;
-  },
-
-  accelerateShip: function(ship) {
-    if (ship.thrustEngine.on) {
-      ship.velocity.x += Math.cos(ship.spatial.rotation) * 0.1;
-      ship.velocity.y += Math.sin(ship.spatial.rotation) * 0.1;
-    }
   }
 });
 
@@ -276,6 +280,7 @@ var Game = bb.Class.extend({
           .addComponent(new Renderable);
 
     world.addSystem(new ControlSystem)
+         .addSystem(new ThrustEngineSystem)
          .addSystem(new MovementSystem)
          .addSystem(new BoundingSystem(this.ctx.canvas))
          .addSystem(new WeaponSystem)
