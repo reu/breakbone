@@ -1204,6 +1204,7 @@ bb.World = (function() {
     addEntityComponent: function(entity, component) {
       var components = this.getComponentsByType(component.type);
       components[entity.id] = component;
+      this.changeEntity(entity);
       return component;
     },
 
@@ -1251,6 +1252,7 @@ bb.World = (function() {
      * @param {bb.Component} component
      */
     removeEntityComponent: function(entity, component) {
+      this.changeEntity(entity);
       delete this.components[component.type][entity.id];
     },
 

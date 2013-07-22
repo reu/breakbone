@@ -90,6 +90,14 @@ describe("bb.World", function() {
       expect(world.getEntityComponents(player)).to.contain(velocityComponent2);
       expect(world.getEntityComponents(player)).to.not.contain(velocityComponent1);
     });
+
+    it("adds the entity to the changed list", function() {
+      world.changedEntities.clear();
+
+      world.addEntityComponent(player, velocityComponent);
+
+      expect(world.changedEntities.contains(player)).to.be(true);
+    });
   });
 
   describe("#removeEntityComponent", function() {
@@ -119,6 +127,15 @@ describe("bb.World", function() {
 
       expect(world.getEntityComponents(player)).to.contain(transformComponent);
       expect(world.getEntityComponents(enemy)).to.contain(aiComponent);
+    });
+
+    it("adds the entity to the changed list", function() {
+      world.addEntityComponent(player, velocityComponent);
+      world.changedEntities.clear();
+
+      world.removeEntityComponent(player, velocityComponent);
+
+      expect(world.changedEntities.contains(player)).to.be(true);
     });
   });
 
