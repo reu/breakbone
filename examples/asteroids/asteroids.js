@@ -51,21 +51,6 @@ var ThrustEngine = bb.Component.extend({
   }
 });
 
-var Input = bb.Input.extend({
-  type: "input",
-
-  init: function() {
-    this.parent();
-
-    this.bind(bb.KEY.UP, "thrust");
-    this.bind(bb.KEY.LEFT, "turn left");
-    this.bind(bb.KEY.RIGHT, "turn right");
-    this.bind(bb.KEY.SPACE, "shoot");
-
-    this.startKeyboardCapture();
-  }
-});
-
 var Weapon = bb.Component.extend({
   type: "weapon",
   triggering: true,
@@ -153,36 +138,39 @@ var BoundingSystem = bb.System.extend({
   }
 });
 
-var ControlSystem = bb.System.extend({
-  allowEntity: function(entity) {
-    return entity.hasComponent("input") && entity.hasComponent("thrustEngine");
+var InputSystem = bb.InputSystem.extend({
+  init: function() {
+    this.parent(window);
+    this.startKeyboardCapture();
   },
 
   process: function() {
     this.entities.forEach(function(entity) {
-      if (entity.input.isPressing("thrust")) {
-        entity.thrustEngine.turnOn();
-      } else {
-        entity.thrustEngine.turnOff();
+      var input = entity.input;
+
+      if (entity.hasComponent("thrustEngine")) {
+        if (this.isPressing(input.action("thrust"))) {
+          entity.thrustEngine.turnOn();
+        } else {
+          entity.thrustEngine.turnOff();
+        }
       }
 
-      if (entity.input.isPressing("turn left")) {
+      if (this.isPressing(input.action("turn left"))) {
         entity.spatial.rotateLeft();
       }
-      if (entity.input.isPressing("turn right")) {
+      if (this.isPressing(input.action("turn right"))) {
         entity.spatial.rotateRight();
       }
 
       if (entity.hasComponent("weapon")) {
-        var weapon = entity.weapon;
-
-        if (entity.input.isPressing("shoot")) {
-          weapon.holdTrigger();
+        if (this.isPressing(input.action("shoot"))) {
+          entity.weapon.holdTrigger();
         } else {
-          weapon.releaseTrigger();
+          entity.weapon.releaseTrigger();
         }
       }
-    });
+    }.bind(this));
   }
 });
 
@@ -272,14 +260,20 @@ var Game = bb.Class.extend({
   reset: function() {
     var world = new bb.World;
 
+    var input = new bb.InputComponent;
+    input.add(bb.KEY.LEFT, "turn left")
+         .add(bb.KEY.RIGHT, "turn right")
+         .add(bb.KEY.UP, "thrust")
+         .add(bb.KEY.SPACE, "shoot");
+
     var player = world.createEntity();
     player.addComponent(new Spatial(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2))
           .addComponent(new Velocity)
-          .addComponent(new Input)
+          .addComponent(input)
           .addComponent(new ThrustEngine)
           .addComponent(new Renderable);
 
-    world.addSystem(new ControlSystem)
+    world.addSystem(new InputSystem)
          .addSystem(new ThrustEngineSystem)
          .addSystem(new MovementSystem)
          .addSystem(new BoundingSystem(this.ctx.canvas))
