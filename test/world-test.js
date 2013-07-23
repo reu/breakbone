@@ -173,6 +173,23 @@ describe("bb.World", function() {
       world.removeEntity(entity);
       expect(world.removedEntities.contains(entity)).to.be(true);
     });
+
+    it("removes the entity from the entity list", function() {
+      var entity = world.createEntity();
+      world.removeEntity(entity);
+      expect(world.entities.contains(entity)).to.be(false);
+    });
+
+    it("removes the entity from the tags list", function() {
+      var entity = world.createEntity();
+      world.tagEntity(entity, "player");
+      world.tagEntity(entity, "hero");
+
+      world.removeEntity(entity);
+
+      expect(world.taggedWith("player").contains(entity)).to.be(false);
+      expect(world.taggedWith("hero").contains(entity)).to.be(false);
+    });
   });
 
   describe("#enableEntity", function() {
@@ -282,6 +299,39 @@ describe("bb.World", function() {
       world.removeEntity(entity);
       world.process();
       expect(world.removedEntities).to.not.contain(entity);
+    });
+  });
+
+  describe("#tagEntity", function() {
+    it("adds a tag to an entity", function() {
+      var player = world.createEntity();
+      var enemy = world.createEntity();
+
+      world.tagEntity(player, "player");
+      world.tagEntity(player, "hero");
+      world.tagEntity(enemy, "enemy");
+
+      expect(world.taggedWith("player").contains(player)).to.be(true);
+      expect(world.taggedWith("player").contains(enemy)).to.be(false);
+
+      expect(world.taggedWith("hero").contains(player)).to.be(true);
+      expect(world.taggedWith("hero").contains(enemy)).to.be(false);
+
+      expect(world.taggedWith("enemy").contains(enemy)).to.be(true);
+      expect(world.taggedWith("enemy").contains(player)).to.be(false);
+    });
+  });
+
+  describe("#untagEntity", function() {
+    it("removes a tag from an entity", function() {
+      var player = world.createEntity();
+      world.tagEntity(player, "player");
+      world.tagEntity(player, "hero");
+
+      world.untagEntity(player, "player");
+
+      expect(world.taggedWith("player").contains(player)).to.be(false);
+      expect(world.taggedWith("hero").contains(player)).to.be(true);
     });
   });
 });

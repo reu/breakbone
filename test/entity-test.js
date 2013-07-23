@@ -147,4 +147,26 @@ describe("bb.Entity", function() {
       expect(entity).to.not.have.property("velocity");
     });
   });
+
+  describe("tag", function() {
+    it("adds a tag to the entity", function() {
+      var entity = new bb.Entity(world);
+      sinon.spy(world, "tagEntity");
+
+      entity.tag("player");
+
+      expect(world.tagEntity.calledWithExactly(entity, "player")).to.be(true);
+    });
+  });
+
+  describe("untag", function() {
+    it("removes a tag from the entity", function() {
+      var entity = new bb.Entity(world);
+      sinon.spy(world, "untagEntity");
+
+      entity.untag("player")
+
+      expect(world.untagEntity.calledWithExactly(entity, "player")).to.be(true);
+    });
+  });
 });

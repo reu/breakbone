@@ -26,6 +26,8 @@ bb.World = (function() {
       this.removedEntities = new bb.Set;
 
       this.components = {};
+
+      this.tags = {};
     },
 
     /**
@@ -133,6 +135,10 @@ bb.World = (function() {
     removeEntity: function(entity) {
       this.entities.remove(entity);
       this.removedEntities.add(entity);
+
+      for (var tag in this.tags) {
+        this.tags[tag].remove(entity);
+      }
     },
 
     /**
@@ -236,6 +242,45 @@ bb.World = (function() {
         this.components[componentType] = {}
       }
       return this.components[componentType];
+    },
+
+    /**
+     * Tags an entity.
+     *
+     * @method tagEntity
+     * @param {bb.Entity} entity
+     * @param {String} tag
+     */
+    tagEntity: function(entity, tag) {
+      if (typeof this.tags[tag] == "undefined") {
+        this.tags[tag] = new bb.Set;
+      }
+
+      this.tags[tag].add(entity);
+    },
+
+    /**
+     * Retrives the entities with the specified tag.
+     *
+     * @method taggedWith
+     * @param {String} tag
+     * @return {bb.Set} entities with this tag
+     */
+    taggedWith: function(tag) {
+      return this.tags[tag] || new bb.Set;
+    },
+
+    /**
+     * Removes the tag from an entity.
+     *
+     * @method untagEntity
+     * @param {String} tag
+     */
+    untagEntity: function(entity, tag) {
+      var entities = this.tags[tag];
+      if (entities) {
+        entities.remove(entity);
+      }
     }
   });
 

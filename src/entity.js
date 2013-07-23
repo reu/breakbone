@@ -104,6 +104,26 @@ bb.Entity = (function() {
     disable: function() {
       this.world.disableEntity(this);
     },
+
+    /**
+     * Add a tag to itself
+     * @method tag
+     * @return {bb.Entity} itself
+     */
+    tag: function(name) {
+      this.world.tagEntity(this, name);
+      return this;
+    },
+
+    /**
+     * Removes a tag from itself
+     * @method untag
+     * @return {bb.Entity} itself
+     */
+    untag: function(name) {
+      this.world.untagEntity(this, name);
+      return this;
+    }
   });
 
   return Entity;
