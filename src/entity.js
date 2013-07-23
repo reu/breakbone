@@ -123,6 +123,16 @@ bb.Entity = (function() {
     untag: function(name) {
       this.world.untagEntity(this, name);
       return this;
+    },
+
+    /**
+     * Check if this entity has a tag.
+     * @method hasTag
+     * @param {String} name the tag name
+     * @return {Boolean}
+     */
+    hasTag: function(name) {
+      return this.world.taggedWith(name).contains(this);
     }
   });
 

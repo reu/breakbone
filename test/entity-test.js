@@ -169,4 +169,14 @@ describe("bb.Entity", function() {
       expect(world.untagEntity.calledWithExactly(entity, "player")).to.be(true);
     });
   });
+
+  describe("#hasTag", function() {
+    it("checks if an entity has the informed tag", function() {
+      var entity = new bb.Entity(world);
+      entity.tag("player");
+
+      expect(entity.hasTag("player")).to.be(true);
+      expect(entity.hasTag("enemy")).to.be(false);
+    });
+  });
 });

@@ -76,4 +76,15 @@ describe("bb.Set", function() {
       }, scope);
     });
   });
+
+  describe("#toArray", function() {
+    it("returns an array with the set items", function() {
+      set.add(item);
+
+      var array = set.toArray();
+
+      expect(array).to.be.an("array");
+      expect(array[0]).to.equal(item);
+    });
+  });
 });

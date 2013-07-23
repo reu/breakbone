@@ -83,6 +83,19 @@ bb.Set = (function() {
       for (var key in this.data) {
         callback.call(scope, this.data[key]);
       }
+    },
+
+    /**
+     * Converts the set to an array.
+     * @method toArray
+     * @return {Array}
+     */
+    toArray: function() {
+      var array = [];
+      this.forEach(function(item) {
+        array.push(item);
+      });
+      return array;
     }
   });
 

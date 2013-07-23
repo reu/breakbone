@@ -254,6 +254,19 @@ bb.Set = (function() {
       for (var key in this.data) {
         callback.call(scope, this.data[key]);
       }
+    },
+
+    /**
+     * Converts the set to an array.
+     * @method toArray
+     * @return {Array}
+     */
+    toArray: function() {
+      var array = [];
+      this.forEach(function(item) {
+        array.push(item);
+      });
+      return array;
     }
   });
 
@@ -607,6 +620,16 @@ bb.Entity = (function() {
     untag: function(name) {
       this.world.untagEntity(this, name);
       return this;
+    },
+
+    /**
+     * Check if this entity has a tag.
+     * @method hasTag
+     * @param {String} name the tag name
+     * @return {Boolean}
+     */
+    hasTag: function(name) {
+      return this.world.taggedWith(name).contains(this);
     }
   });
 
