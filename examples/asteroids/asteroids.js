@@ -54,8 +54,24 @@ var Weapon = bb.Component.extend({
   }
 });
 
+var Expire = bb.Component.extend({
+  type: "expire",
+
+  init: function(lifetime) {
+    this.lifetime = lifetime;
+  },
+
+  isExpired: function() {
+    return this.lifetime <= 0;
+  }
+});
+
 var Renderable = bb.Component.extend({
-  type: "renderable"
+  type: "renderable",
+
+  init: function(name) {
+    this.name = name;
+  }
 });
 
 var ThrustEngineSystem = bb.System.extend({
@@ -168,23 +184,54 @@ var WeaponSystem = bb.System.extend({
     return entity.hasComponent("weapon") && entity.hasComponent("spatial");
   },
 
+  onEntityAdd: function(entity) {
+    this.weaponsTimers[entity.weapon] = 0;
+  },
+
+  onEntityRemoval: function(entity) {
+    delete this.weaponsTimers[entity.weapon];
+  },
+
   process: function() {
     this.entities.forEach(this.shoot.bind(this));
   },
 
   shoot: function(entity) {
-    if (typeof this.weaponsTimers[entity.weapon] == "undefined") {
-      this.weaponsTimers[entity.weapon] = weapon.rate;
-    }
+    if (entity.weapon.triggering && this.weaponsTimers[entity.weapon] <= 0) {
+      this.weaponsTimers[entity.weapon] = entity.weapon.rate;
 
-    var timer = this.weaponsTimers[entity.weapon];
-
-    if (entity.weapon.triggering && entity.weapon.rate == timer) {
       var bullet = this.world.createEntity();
-      bullet.addComponent();
+
+      var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
+
+      var velocity = new Velocity(Math.cos(entity.spatial.rotation), Math.sin(entity.spatial.rotation), 2).multiply(10);
+      velocity.damping = 1;
+
+      var expire = new Expire(60 * 3);
+
+      bullet.addComponent(spatial)
+            .addComponent(velocity)
+            .addComponent(new Renderable("bullet"))
+            .addComponent(expire);
     }
 
-    timer -= 1;
+    this.weaponsTimers[entity.weapon] -= 1;
+  }
+});
+
+var ExpirationSystem = bb.System.extend({
+  allowEntity: function(entity) {
+    return entity.hasComponent("expire");
+  },
+
+  process: function() {
+    this.entities.forEach(function(entity) {
+      entity.expire.lifetime -= 1;
+
+      if (entity.expire.isExpired()) {
+        entity.remove();
+      }
+    });
   }
 });
 
@@ -211,17 +258,39 @@ var RenderingSystem = bb.System.extend({
   },
 
   render: function(entity) {
+    switch (entity.renderable.name) {
+      case "ship":
+        this.renderShip(entity);
+        break;
+      case "bullet":
+        this.renderBullet(entity);
+        break;
+    }
+  },
+
+  renderShip: function(ship) {
     this.ctx.save();
-    this.ctx.strokeStyle = this.ctx.fillStyle = "#fff";
+    this.ctx.strokeStyle = "#fff";
     this.ctx.beginPath();
-    this.ctx.translate(entity.spatial.x, entity.spatial.y);
-    this.ctx.rotate(entity.spatial.rotation);
+    this.ctx.translate(ship.spatial.x, ship.spatial.y);
+    this.ctx.rotate(ship.spatial.rotation);
     this.ctx.moveTo(-8, -8);
     this.ctx.lineTo(12, 0);
     this.ctx.lineTo(-8, 8);
     this.ctx.lineTo(0, 0);
     this.ctx.closePath();
     this.ctx.stroke();
+    this.ctx.restore();
+  },
+
+  renderBullet: function(bullet) {
+    this.ctx.save();
+    this.ctx.fillStyle = "#fff";
+    this.ctx.beginPath();
+    this.ctx.translate(bullet.spatial.x, bullet.spatial.y);
+    this.ctx.arc(0, 0, bullet.spatial.radius, 0, Math.PI * 2, true);
+    this.ctx.closePath();
+    this.ctx.fill();
     this.ctx.restore();
   }
 });
@@ -253,15 +322,17 @@ var Game = bb.Class.extend({
     var player = world.createEntity();
     player.addComponent(new Spatial(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2))
           .addComponent(new Velocity)
+          .addComponent(new Weapon)
           .addComponent(commands)
           .addComponent(new ThrustEngine)
-          .addComponent(new Renderable);
+          .addComponent(new Renderable("ship"));
 
     world.addSystem(new InputSystem)
          .addSystem(new ThrustEngineSystem)
          .addSystem(new MovementSystem)
          .addSystem(new BoundingSystem(this.ctx.canvas))
          .addSystem(new WeaponSystem)
+         .addSystem(new ExpirationSystem)
          .addSystem(new RenderingSystem(this.ctx));
 
     this.pause();
