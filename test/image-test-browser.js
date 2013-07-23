@@ -24,11 +24,11 @@ describe("bb.Image", function() {
       });
     });
 
-    it("saves the image element", function(done) {
-      expect(image.element).to.be(undefined);
+    it("saves the image data", function(done) {
+      expect(image.data).to.be(undefined);
 
       image.load(function() {
-        expect(image.element).to.not.be(undefined);
+        expect(image.data).to.not.be(undefined);
         done();
       });
     });

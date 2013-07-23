@@ -5,7 +5,7 @@ bb.Image = (function() {
    * Represent an image asset.
    *
    * @class bb.Image
-   * @property {Object} element
+   * @property {Object} data
    * @property {Number} width
    * @property {Number} height
    */
@@ -46,9 +46,9 @@ bb.Image = (function() {
      * @private
      */
     onImageLoaded: function(event) {
-      this.element = event.srcElement;
-      this.width = this.element.width;
-      this.height = this.element.height;
+      this.data = event.srcElement;
+      this.width = this.data.width;
+      this.height = this.data.height;
       this.isLoaded = true;
 
       if (this.onLoadCallback) {

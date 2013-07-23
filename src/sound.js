@@ -29,7 +29,7 @@ bb.Sound = (function() {
 
       Object.defineProperty(this, "isPlaying", {
         get: function() {
-          return !this.element.ended;
+          return !this.data.ended;
         }.bind(this)
       });
     },
@@ -49,16 +49,16 @@ bb.Sound = (function() {
       } else {
         this.onLoadCallback = onLoadCallback;
 
-        this.element = new Audio;
-        this.element.preload = "auto";
+        this.data = new Audio;
+        this.data.preload = "auto";
 
-        this.element.onload = this.onAudioLoaded.bind(this);
-        this.element.onerror = this.onLoadError.bind(this);
-        this.element.addEventListener("canplaythrough", this.onAudioLoaded.bind(this), false);
-        this.element.addEventListener("error", this.onLoadError.bind(this), false);
+        this.data.onload = this.onAudioLoaded.bind(this);
+        this.data.onerror = this.onLoadError.bind(this);
+        this.data.addEventListener("canplaythrough", this.onAudioLoaded.bind(this), false);
+        this.data.addEventListener("error", this.onLoadError.bind(this), false);
 
-        this.element.src = this.url;
-        this.element.load();
+        this.data.src = this.url;
+        this.data.load();
       }
     },
 
@@ -71,11 +71,11 @@ bb.Sound = (function() {
     play: function(loop) {
       if (!this.isLoaded) return;
       if (typeof loop != "undefined" && typeof loop != "null") {
-        this.element.loop = !!loop;
+        this.data.loop = !!loop;
       }
 
-      this.element.play();
-      this.element.isPaused = false;
+      this.data.play();
+      this.data.isPaused = false;
     },
 
     /**
@@ -85,8 +85,8 @@ bb.Sound = (function() {
      * @param {Boolean} loop the sound should loop
      */
     stop: function() {
-      this.element.pause();
-      this.element.currentTime = 0;
+      this.data.pause();
+      this.data.currentTime = 0;
     },
 
     /**
@@ -96,7 +96,7 @@ bb.Sound = (function() {
      * @param {Boolean} loop the sound should loop
      */
     pause: function() {
-      this.element.pause();
+      this.data.pause();
       this.isPaused = true;
     },
 
@@ -109,7 +109,7 @@ bb.Sound = (function() {
      */
     setVolume: function(volume) {
       this._volume = volume;
-      this.element.volume = this._volume * bb.Sound.masterVolume;
+      this.data.volume = this._volume * bb.Sound.masterVolume;
     },
 
     /**

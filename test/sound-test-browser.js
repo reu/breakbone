@@ -27,11 +27,11 @@ describe("bb.Sound", function() {
       });
     });
 
-    it("saves the sound element", function(done) {
-      expect(sound.element).to.be(undefined);
+    it("saves the sound audio", function(done) {
+      expect(sound.data).to.be(undefined);
 
       sound.load(function() {
-        expect(sound.element).to.not.be(undefined);
+        expect(sound.data).to.not.be(undefined);
         done();
       });
     });
