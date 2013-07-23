@@ -48,6 +48,12 @@ describe("bb.World", function() {
       world.addSystem(system);
       expect(world.systems).to.contain(system);
     });
+
+    it("sets the system's world", function() {
+      var system = new NullSystem;
+      world.addSystem(system);
+      expect(system.world).to.be(world);
+    });
   });
 
   describe("#addEntityComponent", function() {

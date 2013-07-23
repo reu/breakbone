@@ -1079,6 +1079,7 @@ bb.World = (function() {
      * @return {bb.World} this world
      */
     addSystem: function(system) {
+      system.world = this;
       this.systems.push(system);
       return this;
     },
