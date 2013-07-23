@@ -16,12 +16,20 @@ var Spatial = bb.Component.extend({
 
   rotateRight: function(angle) {
     this.rotation += angle || 0.03;
+  },
+
+  getVector: function() {
+    return new bb.Vector(this.x, this.y);
   }
 });
 
 var Velocity = bb.Vector.extend({
   type: "velocity",
-  damping: 0.995
+  damping: 0.995,
+});
+
+var BoundaryWrap = bb.Component.extend({
+  type: "boundaryWrap"
 });
 
 var ThrustEngine = bb.Component.extend({
@@ -66,11 +74,81 @@ var Expire = bb.Component.extend({
   }
 });
 
+var Asteroid = bb.Component.extend({
+  type: "asteroid",
+
+  init: function(radius) {
+    this.points = [];
+
+    for (var angle = 0; angle < Math.PI * 2; angle += Math.random()) {
+      var length = (0.75 + Math.random() * 0.7) * radius;
+      this.points.push({
+        x: Math.cos(angle) * length,
+        y: Math.sin(angle) * length
+      });
+    }
+  }
+});
+
 var Renderable = bb.Component.extend({
   type: "renderable",
 
   init: function(name) {
     this.name = name;
+  }
+});
+
+var AsteroidSpawnSystem = bb.System.extend({
+  init: function(area) {
+    this.parent();
+    this.area = area;
+  },
+
+  allowEntity: function(entity) {
+    return entity.hasComponent("asteroid");
+  },
+
+  process: function() {
+    this.spawnAsteroid();
+    this.entities.forEach(this.destroyAsteroid.bind(this));
+  },
+
+  spawnAsteroid: function() {
+    if (Math.random() > 0.99) {
+      var asteroid = this.world.createEntity();
+
+      var radius = 30;
+
+      var spatial = new Spatial;
+      spatial.x = -150 + Math.random() * this.area.width + 300;
+      spatial.x = -150 + Math.random() * this.area.height + 300;
+      spatial.radius = radius;
+
+      var direction = bb.Vector.subtract({
+        x: Math.random() * this.area.width,
+        y: Math.random() * this.area.height
+      }, {
+        x: spatial.x,
+        y: spatial.y
+      }).normalize();
+
+      var velocity = new Velocity(direction.x, direction.y);
+      velocity.damping = 1;
+
+      asteroid.addComponent(spatial)
+              .addComponent(new Asteroid(radius))
+              .addComponent(velocity)
+              .addComponent(new Renderable("asteroid"));
+    }
+  },
+
+  destroyAsteroid: function(asteroid) {
+    var position = asteroid.spatial.getVector();
+    var center = new bb.Vector(this.area.width / 2, this.height / 2);
+
+    if (bb.Vector.subtract(position, center).length() > this.area.width) {
+      asteroid.remove();
+    }
   }
 });
 
@@ -114,7 +192,7 @@ var BoundingSystem = bb.System.extend({
   },
 
   allowEntity: function (entity) {
-    return entity.hasComponent("spatial");
+    return entity.hasComponent("spatial") && entity.hasComponent("boundaryWrap");
   },
 
   process: function() {
@@ -265,6 +343,9 @@ var RenderingSystem = bb.System.extend({
       case "bullet":
         this.renderBullet(entity);
         break;
+      case "asteroid":
+        this.renderAsteroid(entity);
+        break;
     }
   },
 
@@ -289,6 +370,21 @@ var RenderingSystem = bb.System.extend({
     this.ctx.beginPath();
     this.ctx.translate(bullet.spatial.x, bullet.spatial.y);
     this.ctx.arc(0, 0, bullet.spatial.radius, 0, Math.PI * 2, true);
+    this.ctx.closePath();
+    this.ctx.fill();
+    this.ctx.restore();
+  },
+
+  renderAsteroid: function(asteroid) {
+    this.ctx.save();
+    this.ctx.fillStyle = "#fff";
+    this.ctx.beginPath();
+    this.ctx.translate(asteroid.spatial.x, asteroid.spatial.y);
+    this.ctx.rotate(asteroid.spatial.rotation);
+    this.ctx.moveTo(asteroid.spatial.radius, 0);
+    for (var i = 0, points = asteroid.asteroid.points, length = points.length; i < length; i++) {
+      this.ctx.lineTo(points[i].x, points[i].y);
+    }
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.restore();
@@ -325,9 +421,11 @@ var Game = bb.Class.extend({
           .addComponent(new Weapon)
           .addComponent(commands)
           .addComponent(new ThrustEngine)
+          .addComponent(new BoundaryWrap)
           .addComponent(new Renderable("ship"));
 
     world.addSystem(new InputSystem)
+         .addSystem(new AsteroidSpawnSystem(this.ctx.canvas))
          .addSystem(new ThrustEngineSystem)
          .addSystem(new MovementSystem)
          .addSystem(new BoundingSystem(this.ctx.canvas))
