@@ -90,6 +90,10 @@ var Asteroid = bb.Component.extend({
   }
 });
 
+var Collidable = bb.Component.extend({
+  type: "collidable"
+});
+
 var Renderable = bb.Component.extend({
   type: "renderable",
 
@@ -98,7 +102,7 @@ var Renderable = bb.Component.extend({
   }
 });
 
-var AsteroidSpawnSystem = bb.System.extend({
+var AsteroidSystem = bb.System.extend({
   init: function(area) {
     this.parent();
     this.area = area;
@@ -116,6 +120,7 @@ var AsteroidSpawnSystem = bb.System.extend({
   spawnAsteroid: function() {
     if (Math.random() > 0.99) {
       var asteroid = this.world.createEntity();
+      asteroid.tag("asteroid");
 
       var radius = 30;
 
@@ -137,6 +142,7 @@ var AsteroidSpawnSystem = bb.System.extend({
 
       asteroid.addComponent(spatial)
               .addComponent(new Asteroid(radius))
+              .addComponent(new Collidable)
               .addComponent(velocity)
               .addComponent(new Renderable("asteroid"));
     }
@@ -216,6 +222,82 @@ var BoundingSystem = bb.System.extend({
   }
 });
 
+var CollisionSystem = bb.System.extend({
+  init: function() {
+    this.parent();
+    this.ships = new bb.Set;
+    this.bullets = new bb.Set;
+    this.asteroids = new bb.Set;
+  },
+
+  allowEntity: function(entity) {
+    return entity.hasComponent("collidable") && entity.hasComponent("spatial");
+  },
+
+  onEntityAdd: function(entity) {
+    if (entity.hasTag("player")) this.ships.add(entity);
+    if (entity.hasTag("bullet")) this.bullets.add(entity);
+    if (entity.hasTag("asteroid")) this.asteroids.add(entity);
+  },
+
+  onEntityRemoval: function(entity) {
+    this.ships.remove(entity);
+    this.bullets.remove(entity);
+    this.asteroids.remove(entity);
+  },
+
+  process: function() {
+    var world = this.world;
+    var ships = this.ships;
+    var bullets = this.bullets;
+    var asteroids = this.asteroids;
+
+    asteroids.forEach(function(asteroid) {
+      bullets.forEach(function(bullet) {
+        var distance = bb.Vector.subtract(asteroid.spatial, bullet.spatial).length();
+
+        if (distance < asteroid.spatial.radius + bullet.spatial.radius) {
+          bullets.remove(bullet);
+          asteroids.remove(asteroid);
+
+          bullet.remove();
+          asteroid.remove();
+
+          if (asteroid.spatial.radius > 10) {
+            function createAsteroid() {
+              var asteroidFragment = world.createEntity();
+              asteroidFragment.tag("asteroid");
+
+              var spatial = new Spatial(asteroid.spatial.x, asteroid.spatial.y, asteroid.spatial.radius / 2);
+
+              var velocity = new Velocity(Math.cos(Math.random() * Math.PI * 2), Math.sin(Math.random() * Math.PI * 2));
+              velocity.damping = 1;
+
+              asteroidFragment.addComponent(spatial)
+                              .addComponent(new Asteroid(spatial.radius))
+                              .addComponent(new Collidable)
+                              .addComponent(velocity)
+                              .addComponent(new Renderable("asteroid"));
+            }
+
+            if (asteroid.spatial.radius >= 30) {
+              createAsteroid();
+              createAsteroid();
+            }
+            createAsteroid();
+          }
+        }
+      });
+    });
+
+    asteroids.forEach(function(asteroid) {
+      ships.forEach(function(ship) {
+        var distance = bb.Vector.subtract(asteroid.spatial, bullet.spatial).length();
+      });
+    });
+  }
+});
+
 var InputSystem = bb.InputSystem.extend({
   init: function() {
     this.parent(window);
@@ -279,6 +361,7 @@ var WeaponSystem = bb.System.extend({
       this.weaponsTimers[entity.weapon] = entity.weapon.rate;
 
       var bullet = this.world.createEntity();
+      bullet.tag("bullet");
 
       var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
 
@@ -289,6 +372,7 @@ var WeaponSystem = bb.System.extend({
 
       bullet.addComponent(spatial)
             .addComponent(velocity)
+            .addComponent(new Collidable)
             .addComponent(new Renderable("bullet"))
             .addComponent(expire);
     }
@@ -416,21 +500,24 @@ var Game = bb.Class.extend({
             .add(bb.KEY.SPACE, "shoot");
 
     var player = world.createEntity();
+    player.tag("ship");
     player.addComponent(new Spatial(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2))
           .addComponent(new Velocity)
           .addComponent(new Weapon)
           .addComponent(commands)
           .addComponent(new ThrustEngine)
           .addComponent(new BoundaryWrap)
+          .addComponent(new Collidable)
           .addComponent(new Renderable("ship"));
 
     world.addSystem(new InputSystem)
-         .addSystem(new AsteroidSpawnSystem(this.ctx.canvas))
+         .addSystem(new AsteroidSystem(this.ctx.canvas))
          .addSystem(new ThrustEngineSystem)
          .addSystem(new MovementSystem)
          .addSystem(new BoundingSystem(this.ctx.canvas))
          .addSystem(new WeaponSystem)
          .addSystem(new ExpirationSystem)
+         .addSystem(new CollisionSystem)
          .addSystem(new RenderingSystem(this.ctx));
 
     this.pause();
