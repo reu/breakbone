@@ -94,6 +94,14 @@ var Collidable = bb.Component.extend({
   type: "collidable"
 });
 
+var Respawn = bb.Component.extend({
+  type: "respawn",
+
+  init: function(timer) {
+    this.timer = timer || 120;
+  }
+});
+
 var Renderable = bb.Component.extend({
   type: "renderable",
 
@@ -235,7 +243,7 @@ var CollisionSystem = bb.System.extend({
   },
 
   onEntityAdd: function(entity) {
-    if (entity.hasTag("player")) this.ships.add(entity);
+    if (entity.hasTag("ship")) this.ships.add(entity);
     if (entity.hasTag("bullet")) this.bullets.add(entity);
     if (entity.hasTag("asteroid")) this.asteroids.add(entity);
   },
@@ -288,11 +296,19 @@ var CollisionSystem = bb.System.extend({
           }
         }
       });
-    });
 
-    asteroids.forEach(function(asteroid) {
       ships.forEach(function(ship) {
-        var distance = bb.Vector.subtract(asteroid.spatial, bullet.spatial).length();
+        var distance = bb.Vector.subtract(asteroid.spatial, ship.spatial).length();
+
+        if (distance < asteroid.spatial.radius + ship.spatial.radius) {
+          ship.addComponent(new Respawn(60 * 3));
+          ship.respawn.input = ship.input;
+
+          ship.removeComponent("input")
+              .removeComponent("velocity")
+              .removeComponent("collidable")
+              .removeComponent("weapon");
+        }
       });
     });
   }
@@ -392,6 +408,34 @@ var ExpirationSystem = bb.System.extend({
 
       if (entity.expire.isExpired()) {
         entity.remove();
+      }
+    });
+  }
+});
+
+var ShipRespawnSystem = bb.System.extend({
+  init: function(respawnArea) {
+    this.parent();
+    this.respawnArea = respawnArea;
+  },
+
+  allowEntity: function(entity) {
+    return entity.hasComponent("respawn");
+  },
+
+  process: function() {
+    var respawnArea = this.respawnArea;
+
+    this.entities.forEach(function(entity) {
+      entity.respawn.timer -= 1;
+
+      if (entity.respawn.timer == 0) {
+          entity.addComponent(new Spatial(respawnArea.width / 2, respawnArea.height / 2))
+                .addComponent(new Velocity)
+                .addComponent(entity.respawn.input)
+                .addComponent(new Collidable)
+                .addComponent(new Weapon)
+                .removeComponent("respawn");
       }
     });
   }
@@ -518,6 +562,7 @@ var Game = bb.Class.extend({
          .addSystem(new WeaponSystem)
          .addSystem(new ExpirationSystem)
          .addSystem(new CollisionSystem)
+         .addSystem(new ShipRespawnSystem(this.ctx.canvas))
          .addSystem(new RenderingSystem(this.ctx));
 
     this.pause();
