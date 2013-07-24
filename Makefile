@@ -13,6 +13,7 @@ concatenate:
 		src/sound.js\
 		src/world.js\
 		src/systems/system.js\
+		src/systems/void.js\
 		src/systems/input.js\
 		src/components/component.js\
 		src/components/input.js\
