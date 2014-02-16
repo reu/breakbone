@@ -14,4 +14,6 @@ bb.VoidSystem = (function() {
     entityEnabled: function() {},
     entityDisabled: function() {}
   });
+
+  return VoidSystem;
 })();
