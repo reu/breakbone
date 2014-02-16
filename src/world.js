@@ -91,7 +91,8 @@ bb.World = (function() {
      */
     processSystems: function() {
       for (var i = 0, length = this.systems.length; i < length; i++) {
-        this.systems[i].process();
+        var system = this.systems[i];
+        if (system.shouldProcess()) system.process();
       }
     },
 

@@ -271,6 +271,18 @@ describe("bb.World", function() {
       world.process();
     });
 
+    it("doesn't process systems which should not be processed", function() {
+      system.process = function() {
+        throw "Should not have been called";
+      }
+
+      system.shouldProcess = function() {
+        return false;
+      }
+
+      world.process();
+    });
+
     it("clears all the added entities", function() {
       world.addEntity(entity);
       world.process();

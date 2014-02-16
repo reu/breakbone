@@ -54,6 +54,14 @@ bb.System = (function() {
     },
 
     /**
+     * Checks if this system should be processed.
+     * @method shouldProcess
+     */
+    shouldProcess: function() {
+      return true;
+    },
+
+    /**
      * Callback that is called when an entity is added to this system.
      * @event onEntityAdd
      * @param {bb.Entity} entity
