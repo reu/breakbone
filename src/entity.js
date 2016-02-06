@@ -38,7 +38,14 @@ bb.Entity = (function() {
      */
     addComponent(component) {
       this.world.addEntityComponent(this, component);
-      this[component.type] = component;
+
+      Object.defineProperty(this, component.type, {
+        enumerable: false,
+        configurable: true,
+        writable: false,
+        value: component
+      });
+
       return this;
     }
 
