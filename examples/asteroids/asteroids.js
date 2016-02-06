@@ -53,7 +53,7 @@ class ThrustEngine extends bb.Component {
 class Weapon extends bb.Component {
   constructor(rate) {
     super();
-    this.rate = rate || 10;
+    this.rate = rate || 1;
     this.triggering = true;
   }
 
@@ -376,21 +376,24 @@ class WeaponSystem extends bb.System {
     if (entity.weapon.triggering && this.weaponsTimers[entity.weapon] <= 0) {
       this.weaponsTimers[entity.weapon] = entity.weapon.rate;
 
-      var bullet = this.world.createEntity();
-      bullet.tag("bullet");
+      [-20, -10, 0, 10, 20].map(function(degree) {
+        return degree + ((Math.random() * 10) - (Math.random() * 10));
+      }).map(function(degree) {
+        return degree * (Math.PI / 180);
+      }).forEach(function(angle) {
+        var bullet = this.world.createEntity();
+        bullet.tag("bullet");
 
-      var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
+        var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
+        var velocity = new Velocity(Math.cos(entity.spatial.rotation + angle), Math.sin(entity.spatial.rotation + angle), 2).multiply(10);
+        velocity.damping = 1;
 
-      var velocity = new Velocity(Math.cos(entity.spatial.rotation), Math.sin(entity.spatial.rotation), 2).multiply(10);
-      velocity.damping = 1;
-
-      var expire = new Expire(60 * 3);
-
-      bullet.addComponent(spatial)
-            .addComponent(velocity)
-            .addComponent(new Collidable)
-            .addComponent(new Renderable("bullet"))
-            .addComponent(expire);
+        bullet.addComponent(spatial)
+              .addComponent(velocity)
+              .addComponent(new Collidable)
+              .addComponent(new Renderable("bullet"))
+              .addComponent(new Expire(60 * 3));
+      }, this);
     }
 
     this.weaponsTimers[entity.weapon] -= 1;

@@ -779,8 +779,7 @@ bb.World = (function() {
       this.enabledEntities = new Set;
       this.removedEntities = new Set;
 
-      this.components = {};
-
+      this.components = new Map;
       this.tags = {};
     }
 
@@ -891,6 +890,10 @@ bb.World = (function() {
       this.entities.delete(entity);
       this.removedEntities.add(entity);
 
+      for (var components of this.components.values()) {
+        components.delete(entity);
+      }
+
       for (var tag in this.tags) {
         this.tags[tag].delete(entity);
       }
@@ -932,13 +935,13 @@ bb.World = (function() {
      */
     addEntityComponent(entity, component) {
       var components = this.getComponentsByType(component.type);
-      components[entity.id] = component;
+      components.set(entity, component);
       this.changeEntity(entity);
       return component;
     }
 
     /**
-     * Add a component to an entity.
+     * Gets an entity component.
      * @method getEntityComponent
      * @param {bb.Entity} entity
      * @param {String} componentType the type of the component
@@ -946,12 +949,7 @@ bb.World = (function() {
      */
     getEntityComponent(entity, componentType) {
       var components = this.getComponentsByType(componentType);
-
-      for (var entityId in components) {
-        if (entityId == entity.id) {
-          return components[entityId];
-        }
-      }
+      return components.get(entity);
     }
 
     /**
@@ -961,17 +959,14 @@ bb.World = (function() {
      * @return {Array} all the components the entity has
      */
     getEntityComponents(entity) {
-      var components = [];
+      var entityComponents = [];
 
-      for (var type in this.components) {
-        for (var entityId in this.components[type]) {
-          if (entityId == entity.id) {
-            components.push(this.components[type][entityId]);
-          }
-        }
+      for (var components of this.components.values()) {
+        var component = components.get(entity);
+        if (component) entityComponents.push(component);
       }
 
-      return components;
+      return entityComponents;
     }
 
     /**
@@ -982,7 +977,7 @@ bb.World = (function() {
      */
     removeEntityComponent(entity, component) {
       this.changeEntity(entity);
-      delete this.components[component.type][entity.id];
+      return this.getComponentsByType(component.type).delete(entity);
     }
 
     /**
@@ -993,10 +988,11 @@ bb.World = (function() {
      * @return {Object} components of the specified type
      */
     getComponentsByType(componentType) {
-      if (!this.components[componentType]) {
-        this.components[componentType] = {}
+      if (!this.components.has(componentType)) {
+        this.components.set(componentType, new WeakMap);
       }
-      return this.components[componentType];
+
+      return this.components.get(componentType);
     }
 
     /**

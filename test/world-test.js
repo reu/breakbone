@@ -181,6 +181,19 @@ describe("bb.World", function() {
       expect(world.taggedWith("player").has(entity)).to.be(false);
       expect(world.taggedWith("hero").has(entity)).to.be(false);
     });
+
+    it("removes all the entity components", function() {
+      var entity = world.createEntity();
+      var velocity = new VelocityComponent;
+      var position = new PositionComponent;
+
+      world.addEntityComponent(entity, velocity);
+      world.addEntityComponent(entity, position);
+
+      expect(world.getEntityComponents(entity)).to.not.be.empty();
+      world.removeEntity(entity);
+      expect(world.getEntityComponents(entity)).to.be.empty();
+    });
   });
 
   describe("#enableEntity", function() {
