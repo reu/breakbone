@@ -26,19 +26,19 @@ bb.System = (function() {
    *       }
    *     });
    */
-  var System = bb.Class.extend({
+  class System {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.entities = new Set;
-    },
+    }
 
     /**
      * Process a game tick.
      * @method process
      */
-    process: function() {},
+    process() {}
 
     /**
      * Checks if an entity should belong to this system.
@@ -49,52 +49,52 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      * @return {Boolean} true if the entity should belong to this system.
      */
-    allowEntity: function(entity) {
+    allowEntity(entity) {
       throw "Not implemented";
-    },
+    }
 
     /**
      * Checks if this system should be processed.
      * @method shouldProcess
      */
-    shouldProcess: function() {
+    shouldProcess() {
       return true;
-    },
+    }
 
     /**
      * Callback that is called when an entity is added to this system.
      * @event onEntityAdd
      * @param {bb.Entity} entity
      */
-    onEntityAdd: function(entity) {},
+    onEntityAdd(entity) {}
 
     /**
      * Callback that is called when an entity of this system is changed.
      * @event onEntityChange
      * @param {bb.Entity} entity
      */
-    onEntityChange: function(entity) {},
+    onEntityChange(entity) {}
 
     /**
      * Callback that is called when an entity of this system is removed.
      * @event onEntityRemoval
      * @param {bb.Entity} entity
      */
-    onEntityRemoval: function(entity) {},
+    onEntityRemoval(entity) {}
 
     /**
      * Callback that is called when an entity of this system is enabled.
      * @event onEntityEnable
      * @param {bb.Entity} entity
      */
-    onEntityEnable: function(entity) {},
+    onEntityEnable(entity) {}
 
     /**
      * Callback that is called when an entity of this system is disabled.
      * @event onEntityDisable
      * @param {bb.Entity} entity
      */
-    onEntityDisable: function(entity) {},
+    onEntityDisable(entity) {}
 
     /**
      * Adds the entity to this system and fires the callbacks.
@@ -102,14 +102,14 @@ bb.System = (function() {
      * @private
      * @param {bb.Entity} entity
      */
-    addEntity: function(entity) {
+    addEntity(entity) {
       if (this.entities.has(entity)) {
         this.entities.add(entity);
       } else {
         this.entities.add(entity);
         this.onEntityAdd(entity);
       }
-    },
+    }
 
     /**
      * Removes the entity from this system and fires the callbacks.
@@ -117,11 +117,11 @@ bb.System = (function() {
      * @private
      * @param {bb.Entity} entity
      */
-    removeEntity: function(entity) {
+    removeEntity(entity) {
       if (this.entities.delete(entity)) {
         this.onEntityRemoval(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is added to the world, it calls this method, to
@@ -130,11 +130,11 @@ bb.System = (function() {
      * @method entityAdded
      * @param {bb.Entity} entity
      */
-    entityAdded: function(entity) {
+    entityAdded(entity) {
       if (this.allowEntity(entity)) {
         this.addEntity(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is removed to the world, this method is called,
@@ -143,9 +143,9 @@ bb.System = (function() {
      * @method entityRemoved
      * @param {bb.Entity} entity
      */
-    entityRemoved: function(entity) {
+    entityRemoved(entity) {
       this.removeEntity(entity);
-    },
+    }
 
     /**
      * Everytime we add or remove a component from an entity in the world,
@@ -155,7 +155,7 @@ bb.System = (function() {
      * @method entityChanged
      * @param {bb.Entity} entity
      */
-    entityChanged: function(entity) {
+    entityChanged(entity) {
       if (this.allowEntity(entity)) {
         if (this.entities.has(entity)) {
           this.onEntityChange(entity);
@@ -165,31 +165,31 @@ bb.System = (function() {
       } else {
         this.removeEntity(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is enabled in the world, this method is called.
      * @method entityEnabled
      * @param {bb.Entity} entity
      */
-    entityEnabled: function(entity) {
+    entityEnabled(entity) {
       if (this.allowEntity(entity)) {
         this.entities.add(entity);
         this.onEntityEnable(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is disabled in the world, this method is called.
      * @method entityDisabled
      * @param {bb.Entity} entity
      */
-    entityDisabled: function(entity) {
+    entityDisabled(entity) {
       if (this.entities.delete(entity)) {
         this.onEntityDisable(entity);
       }
     }
-  });
+  };
 
   return System;
 })();

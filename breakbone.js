@@ -30,193 +30,82 @@ bb = (function() {
 
   return bb;
 })();
-bb.Class = (function() {
-  "use strict";
-
-  /**
-   * Class based on (Jonh Resig)[http://ejohn.org/blog/simple-javascript-inheritance/]
-   * and Impactjs implementation.
-   *
-   * @class bb.Class
-   * @constructor
-   */
-  var Class = function Class() {}
-
-  /**
-   * Reopens the class and inject new methods on it.
-   *
-   * @method reopen
-   * @param {Object} properties the properties to inject on the class
-   */
-  Class.reopen = function(properties) {
-    for (var name in properties) {
-      var property = properties[name];
-      var currentProperty = this.prototype[name]
-
-      if (typeof property == "function" && typeof currentProperty == "function") {
-        this.prototype[name] = (function(parentFn, fn) {
-          return function() {
-            var tmp = this.parent;
-            this.parent = parentFn;
-            var ret = fn.apply(this, arguments);
-            this.parent = tmp;
-            if (typeof this.parent ==  "undefined") delete this.parent;
-            return ret;
-          }
-        })(currentProperty, property);
-      } else {
-        this.prototype[name] = property;
-      }
-    }
-  }
-
-  /**
-   * Extends a class.
-   * You can call the function `this.parent` when overriding methods
-   * to refer to the same method of the superclass.
-   *
-   * @method extend
-   * @param {Object} properties the properties of the new class
-   * @example
-   *     var Person = bb.Class.extend({
-   *       init: function(name) {
-   *         if (!name || name == "") throw "We don't allow anonymous people here";
-   *         this.name = name;
-   *       },
-   *       sayHello: function() {
-   *         return "Hello, my name is " + this.name;
-   *       }
-   *     });
-   *
-   *     var Ninja = Person.extend({
-   *       init: function(name, stars) {
-   *         this.parent(name) // Call the Person constructor method
-   *         this.stars = stars || 0;
-   *       },
-   *
-   *       sayHello: function() {
-   *         return this.parent() + " **disapears in the shadows**";
-   *       },
-   *
-   *       throwStars: function() {
-   *         this.stars--;
-   *         return "Star throwed!";
-   *       }
-   *     });
-   */
-  Class.extend = function(properties) {
-    var parent = this.prototype;
-    var child = Object.create(parent);
-
-    for (var name in properties) {
-      var property = properties[name];
-      var parentProperty = parent[name];
-
-      if (typeof property == "function" && typeof parentProperty == "function") {
-        child[name] = (function(parentFn, fn) {
-          return function() {
-            var tmp = this.parent;
-            this.parent = parentFn;
-            var ret = fn.apply(this, arguments);
-            this.parent = tmp;
-            if (typeof this.parent ==  "undefined") delete this.parent;
-            return ret;
-          }
-        })(parentProperty, property);
-      } else {
-        child[name] = properties[name];
-      }
-    }
-
-    function Class() {
-      if (child.init) child.init.apply(this, arguments);
-    }
-    Class.prototype = child;
-    Class.prototype.constructor = Class;
-    Class.extend = bb.Class.extend;
-    Class.reopen = bb.Class.reopen;
-
-    return Class;
-  }
-
-  return Class;
-})();
 bb.Vector = (function() {
   "use strict";
 
-  var Vector = bb.Class.extend({
-    init: function(x, y) {
+  class Vector {
+    constructor(x, y) {
       this.x = x || 0;
       this.y = y || 0;
-    },
+    }
 
-    add: function(vector) {
+    add(vector) {
       this.x += vector.x;
       this.y += vector.y;
       return this;
-    },
+    }
 
-    subtract: function(vector) {
+    subtract(vector) {
       this.x -= vector.x;
       this.y -= vector.y;
       return this;
-    },
+    }
 
-    multiply: function(scalar) {
+    multiply(scalar) {
       this.x *= scalar;
       this.y *= scalar;
       return this;
-    },
+    }
 
-    divide: function(scalar) {
+    divide(scalar) {
       this.x /= scalar;
       this.y /= scalar;
       return this;
-    },
+    }
 
-    lengthSquared: function() {
+    lengthSquared() {
       return this.x * this.x + this.y * this.y;
-    },
+    }
 
-    length: function() {
+    length() {
       return Math.sqrt(this.lengthSquared());
-    },
+    }
 
-    normalize: function() {
+    normalize() {
       var length = this.length();
       if (length > 0 && length != 1) this.divide(length);
       return this;
-    },
+    }
 
-    limit: function(max) {
+    limit(max) {
       if (this.length() > max) return this.normalize() && this.multiply(max);
-    },
+    }
 
-    dot: function(vector) {
+    dot(vector) {
       return this.x * vector.x + this.y * vector.y;
-    },
+    }
 
-    distance: function(vector) {
+    distance(vector) {
       var dx = this.x - vector.x,
           dy = this.y - vector.y;
 
       return Math.sqrt(dx * dx + dy * dy);
-    },
+    }
 
-    reverse: function() {
+    reverse() {
       this.x *= -1;
       this.y *= -1;
       return this;
-    },
+    }
 
-    clone: function() {
+    clone() {
       return new Vector(this.x, this.y);
-    },
+    }
 
-    toString: function() {
+    toString() {
       return "(" + ([this.x, this.y].join(", ")) + ")";
     }
-  });
+  };
 
   Vector.add = function(v1, v2) {
     return new Vector(v1.x + v2.x, v1.y + v2.y);
@@ -301,6 +190,8 @@ bb.KEY = (function() {
   return KEY;
 })();
 bb.Runner = (function(window) {
+  "use strict";
+
   var displayBind = window.requestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     function(callback) {
@@ -314,22 +205,22 @@ bb.Runner = (function(window) {
    *
    * @class Runner
    */
-  var Runner = bb.Class.extend({
+  class Runner {
     /**
      * @constructor
      * @param {Integer} fps the frames per second that this runner will run
      */
-    init: function(fps) {
+    constructor(fps) {
       this.fps = fps || 60;
       this.onTick = function(elapsedTime) {};
-    },
+    }
 
     /**
      * Starts the run loop.
      *
      * @method start
      */
-    start: function() {
+    start() {
       var time = new Date;
       var _this = this;
 
@@ -346,12 +237,12 @@ bb.Runner = (function(window) {
           time = new Date;
         }, 1000 / this.fps);
       }
-    },
+    }
 
     /**
      * Stops the run loop.
      */
-    stop: function() {
+    stop() {
       if (this.fps == 60) {
         displayUnbind(this.runLoop);
       } else {
@@ -359,8 +250,8 @@ bb.Runner = (function(window) {
       }
 
       delete this.runLoop;
-    },
-  });
+    }
+  };
 
   return Runner;
 })(typeof window != "undefined" ? window : global);
@@ -374,15 +265,15 @@ bb.Entity = (function() {
    * @property {bb.World} world world that this entity belongs to
    * @property {Number} id the unique id of this entity
    */
-  var Entity = bb.Class.extend({
+  class Entity {
     /**
      * @constructor
      * @param {bb.World} world
      */
-    init: function(world) {
+    constructor(world) {
       this.world = world;
       this.id = bb.objectId(this);
-    },
+    }
 
     /**
      * Checks if the entity contains the specified component type.
@@ -391,9 +282,9 @@ bb.Entity = (function() {
      * @param {String} componentType
      * @return {Boolean} true if the entity contains the specified component
      */
-    hasComponent: function(componentType) {
+    hasComponent(componentType) {
       return !!this.getComponent(componentType);
-    },
+    }
 
     /**
      * Adds a new component to this entity.
@@ -402,11 +293,11 @@ bb.Entity = (function() {
      * @param {bb.Component}
      * @return {bb.Entity} itself
      */
-    addComponent: function(component) {
+    addComponent(component) {
       this.world.addEntityComponent(this, component);
       this[component.type] = component;
       return this;
-    },
+    }
 
     /**
      * Returns the list of components this entitiy has.
@@ -414,9 +305,9 @@ bb.Entity = (function() {
      * @method getComponents
      * @return {Array} components
      */
-    getComponents: function() {
+    getComponents() {
       return this.world.getEntityComponents(this);
-    },
+    }
 
     /**
      * Gets the component of a specific type.
@@ -425,9 +316,9 @@ bb.Entity = (function() {
      * @param {String} componentType
      * @return {bb.Component}
      */
-    getComponent: function(componentType) {
+    getComponent(componentType) {
       return this.world.getEntityComponent(this, componentType);
-    },
+    }
 
     /**
      * Removes a component from this entity.
@@ -436,7 +327,7 @@ bb.Entity = (function() {
      * @param {bb.Component | String} componentOrType
      * @return {bb.Entity} itself
      */
-    removeComponent: function(component) {
+    removeComponent(component) {
       if (typeof component == "string") {
         component = this.getComponent(component);
       }
@@ -445,51 +336,51 @@ bb.Entity = (function() {
       delete this[component.type];
 
       return this;
-    },
+    }
 
     /**
      * Removes itself from the world.
      * @method remove
      */
-    remove: function() {
+    remove() {
       this.world.removeEntity(this);
-    },
+    }
 
     /**
      * Enables itself in the world.
      * @method enable
      */
-    enable: function() {
+    enable() {
       this.world.enableEntity(this);
-    },
+    }
 
     /**
      * Disables itself in the world.
      * @method disable
      */
-    disable: function() {
+    disable() {
       this.world.disableEntity(this);
-    },
+    }
 
     /**
      * Add a tag to itself
      * @method tag
      * @return {bb.Entity} itself
      */
-    tag: function(name) {
+    tag(name) {
       this.world.tagEntity(this, name);
       return this;
-    },
+    }
 
     /**
      * Removes a tag from itself
      * @method untag
      * @return {bb.Entity} itself
      */
-    untag: function(name) {
+    untag(name) {
       this.world.untagEntity(this, name);
       return this;
-    },
+    }
 
     /**
      * Check if this entity has a tag.
@@ -497,10 +388,10 @@ bb.Entity = (function() {
      * @param {String} name the tag name
      * @return {Boolean}
      */
-    hasTag: function(name) {
+    hasTag(name) {
       return this.world.taggedWith(name).has(this);
     }
-  });
+  };
 
   return Entity;
 })();
@@ -515,15 +406,15 @@ bb.Image = (function() {
    * @property {Number} width
    * @property {Number} height
    */
-  bb.Image = bb.Class.extend({
+  class Image {
     /**
      * @constructor
      * @param {String} url the path to the image
      */
-    init: function(url) {
+    constructor(url) {
       this.url = url;
       this.isLoaded = false;
-    },
+    }
 
     /**
      * Loads a image and executes the callback when loaded.
@@ -532,7 +423,7 @@ bb.Image = (function() {
      * @param {Function} onLoadCallback callback that will be
      *     called when the image is loaded
      */
-    load: function(onLoadCallback) {
+    load(onLoadCallback) {
       if (this.isLoaded) {
         if (onLoadCallback) {
           onLoadCallback(this);
@@ -545,13 +436,13 @@ bb.Image = (function() {
         image.onerror = this.onLoadError.bind(this);
         image.src = this.url;
       }
-    },
+    }
 
     /**
      * @method onImageLoaded
      * @private
      */
-    onImageLoaded: function(event) {
+    onImageLoaded(event) {
       this.data = event.srcElement;
       this.width = this.data.width;
       this.height = this.data.height;
@@ -560,18 +451,18 @@ bb.Image = (function() {
       if (this.onLoadCallback) {
         this.onLoadCallback(this);
       }
-    },
+    }
 
     /**
      * @method onLoadError
      * @private
      */
-    onLoadError: function() {
+    onLoadError() {
       throw "Error while loading image: " + this.url;
     }
-  });
+  };
 
-  return bb.Image;
+  return Image;
 })();
 bb.Loader = (function() {
   "use strict";
@@ -584,17 +475,17 @@ bb.Loader = (function() {
    * @event onFinish fired when all the resources are loaded
    * @event onProgress fired when each resource is loaded
    */
-  var Loader = bb.Class.extend({
+  class Loader {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.resources = [];
       this.loadedCount = 0;
 
       this.onProgress = function(percentage, count) {};
       this.onFinish = function() {};
-    },
+    }
 
     /**
      * Adds resources to the loading queue.
@@ -602,7 +493,7 @@ bb.Loader = (function() {
      * @method add
      * @param {Arguments} resources
      */
-    add: function() {
+    add() {
       for (var i = 0; i < arguments.length; i++) {
         var resource = arguments[i];
 
@@ -613,7 +504,7 @@ bb.Loader = (function() {
         }
       }
       return this;
-    },
+    }
 
     /**
      * Loads all the resources and fires the callback when finished.
@@ -621,7 +512,7 @@ bb.Loader = (function() {
      * @method load
      * @param {Function} callback
      */
-    load: function(callback) {
+    load(callback) {
       this.loadedCount = 0;
 
       this.onProgress(0, this.loadedCount);
@@ -637,20 +528,20 @@ bb.Loader = (function() {
           }
         });
       });
-    },
+    }
 
     /**
      * Event fired when each resource is loaded.
      * @event onProgress
      */
-    onProgress: function(percentage, count) {},
+    onProgress(percentage, count) {}
 
     /**
      * Event fired when all the resources are loaded.
      * @event onFinish
      */
-    onFinish: function() {}
-  });
+    onFinish() {}
+  };
 
   return Loader;
 })();
@@ -666,12 +557,12 @@ bb.Sound = (function() {
    * @property {Boolean} isPaused true if the sound has been paused
    * @property {Boolean} isPlaying true if the sound is being play
    */
-  var Sound = bb.Class.extend({
+  class Sound {
     /**
      * @constructor
      * @param {String} url the path to the sound file
      */
-    init: function(url) {
+    constructor(url) {
       this.url = url;
       this._volume = 1;
 
@@ -688,7 +579,7 @@ bb.Sound = (function() {
           return !this.data.ended;
         }.bind(this)
       });
-    },
+    }
 
     /**
      * Loads a sound file and executes the callback when loaded.
@@ -697,7 +588,7 @@ bb.Sound = (function() {
      * @param {Function} onLoadCallback callback that will be
      *     called when the sound file is loaded
      */
-    load: function(onLoadCallback) {
+    load(onLoadCallback) {
       if (this.isLoaded) {
         if (onLoadCallback) {
           onLoadCallback(this);
@@ -716,7 +607,7 @@ bb.Sound = (function() {
         this.data.src = this.url;
         this.data.load();
       }
-    },
+    }
 
     /**
      * Plays the sound file.
@@ -724,7 +615,7 @@ bb.Sound = (function() {
      * @method play
      * @param {Boolean} loop the sound should loop
      */
-    play: function(loop) {
+    play(loop) {
       if (!this.isLoaded) return;
       if (typeof loop != "undefined" && typeof loop != "null") {
         this.data.loop = !!loop;
@@ -732,7 +623,7 @@ bb.Sound = (function() {
 
       this.data.play();
       this.data.isPaused = false;
-    },
+    }
 
     /**
      * Stops the sound.
@@ -740,10 +631,10 @@ bb.Sound = (function() {
      * @method stop
      * @param {Boolean} loop the sound should loop
      */
-    stop: function() {
+    stop() {
       this.data.pause();
       this.data.currentTime = 0;
-    },
+    }
 
     /**
      * Pauses the sound.
@@ -751,10 +642,10 @@ bb.Sound = (function() {
      * @method pause
      * @param {Boolean} loop the sound should loop
      */
-    pause: function() {
+    pause() {
       this.data.pause();
       this.isPaused = true;
-    },
+    }
 
     /**
      * Pauses the sound.
@@ -763,10 +654,10 @@ bb.Sound = (function() {
      * @private
      * @param {Number} volume the volume of this sound, from 0 to 1
      */
-    setVolume: function(volume) {
+    setVolume(volume) {
       this._volume = volume;
       this.data.volume = this._volume * bb.Sound.masterVolume;
-    },
+    }
 
     /**
      * Get the sound volume.
@@ -775,15 +666,15 @@ bb.Sound = (function() {
      * @private
      * @return {Number} the volume of this sound, from 0 to 1
      */
-    getVolume: function() {
+    getVolume() {
       return this._volume;
-    },
+    }
 
     /**
      * @method onAudioLoaded
      * @private
      */
-    onAudioLoaded: function(event) {
+    onAudioLoaded(event) {
       this.isLoaded = true;
       this.setVolume(this.volume);
 
@@ -792,16 +683,16 @@ bb.Sound = (function() {
       if (this.onLoadCallback) {
         this.onLoadCallback(this);
       }
-    },
+    }
 
     /**
      * @method onLoadError
      * @private
      */
-    onLoadError: function() {
+    onLoadError() {
       throw "Error while loading sound: " + this.url;
     }
-  });
+  };
 
   /**
    * The list of all loaded sounds.
@@ -880,11 +771,11 @@ bb.World = (function() {
    * @property {Array} disabledEntities the disabled entities
    * @property {Array} systems the systems your world processes
    */
-  var World = bb.Class.extend({
+  class World {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.systems = [];
 
       this.entities = new Set;
@@ -899,23 +790,23 @@ bb.World = (function() {
       this.components = {};
 
       this.tags = {};
-    },
+    }
 
     /**
      * Notifies and processes all the systems.
      * @method process
      */
-    process: function() {
+    process() {
       this.notifySystems();
       this.processSystems();
-    },
+    }
 
     /**
      * Helper method to yield all the systems with all the entities.
      * @method check
      * @private
      */
-    check: function(entities, action) {
+    check(entities, action) {
       if (entities.size) {
         var systems = this.systems;
 
@@ -927,14 +818,14 @@ bb.World = (function() {
 
         entities.clear();
       }
-    },
+    }
 
     /**
      * Notifies the systems about entities added, changed, disabled,
      * enabled and removed.
      * @method notifySystems
      */
-    notifySystems: function() {
+    notifySystems() {
       this.check(this.addedEntities, function(entity, system) {
         system.entityAdded(entity);
       });
@@ -954,38 +845,38 @@ bb.World = (function() {
       this.check(this.removedEntities, function(entity, system) {
         system.entityRemoved(entity);
       });
-    },
+    }
 
     /**
      * Processes all the systems.
      * @method processSystems
      */
-    processSystems: function() {
+    processSystems() {
       for (var i = 0, length = this.systems.length; i < length; i++) {
         var system = this.systems[i];
         if (system.shouldProcess()) system.process();
       }
-    },
+    }
 
     /**
      * Creates a new entity and adds it to the world.
      * @method createEntity
      */
-    createEntity: function() {
+    createEntity() {
       var entity = new bb.Entity(this);
       this.addEntity(entity);
       return entity;
-    },
+    }
 
     /**
      * Adds an entity to the world.
      * @method addEntity
      * @param {bb.Entity} entity
      */
-    addEntity: function(entity) {
+    addEntity(entity) {
       this.entities.add(entity);
       this.addedEntities.add(entity);
-    },
+    }
 
     /**
      * Adds a system to the world
@@ -993,52 +884,52 @@ bb.World = (function() {
      * @param {bb.System} system
      * @return {bb.World} this world
      */
-    addSystem: function(system) {
+    addSystem(system) {
       system.world = this;
       this.systems.push(system);
       return this;
-    },
+    }
 
     /**
      * Removes an entity from the world.
      * @method removeEntity
      * @param {bb.Entity} entity
      */
-    removeEntity: function(entity) {
+    removeEntity(entity) {
       this.entities.delete(entity);
       this.removedEntities.add(entity);
 
       for (var tag in this.tags) {
         this.tags[tag].delete(entity);
       }
-    },
+    }
 
     /**
      * Changes an entity
      * @method changeEntity
      * @param {bb.Entity} entity
      */
-    changeEntity: function(entity) {
+    changeEntity(entity) {
       this.changedEntities.add(entity);
-    },
+    }
 
     /**
      * Enable an entity of the world.
      * @method enableEntity
      * @param {bb.Entity} entity
      */
-    enableEntity: function(entity) {
+    enableEntity(entity) {
       this.enabledEntities.add(entity);
-    },
+    }
 
     /**
      * Disable an entity of the world.
      * @method disableEntity
      * @param {bb.Entity} entity
      */
-    disableEntity: function(entity) {
+    disableEntity(entity) {
       this.disabledEntities.add(entity);
-    },
+    }
 
     /**
      * Add a component to an entity.
@@ -1047,12 +938,12 @@ bb.World = (function() {
      * @param {bb.Component} component
      * @return {bb.Component} the component added to the entity
      */
-    addEntityComponent: function(entity, component) {
+    addEntityComponent(entity, component) {
       var components = this.getComponentsByType(component.type);
       components[entity.id] = component;
       this.changeEntity(entity);
       return component;
-    },
+    }
 
     /**
      * Add a component to an entity.
@@ -1061,7 +952,7 @@ bb.World = (function() {
      * @param {String} componentType the type of the component
      * @return {bb.Component} the component or undefined if it is not found
      */
-    getEntityComponent: function(entity, componentType) {
+    getEntityComponent(entity, componentType) {
       var components = this.getComponentsByType(componentType);
 
       for (var entityId in components) {
@@ -1069,7 +960,7 @@ bb.World = (function() {
           return components[entityId];
         }
       }
-    },
+    }
 
     /**
      * Retrives all the components of an entity.
@@ -1077,7 +968,7 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @return {Array} all the components the entity has
      */
-    getEntityComponents: function(entity) {
+    getEntityComponents(entity) {
       var components = [];
 
       for (var type in this.components) {
@@ -1089,7 +980,7 @@ bb.World = (function() {
       }
 
       return components;
-    },
+    }
 
     /**
      * Removes a component from an entity.
@@ -1097,10 +988,10 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @param {bb.Component} component
      */
-    removeEntityComponent: function(entity, component) {
+    removeEntityComponent(entity, component) {
       this.changeEntity(entity);
       delete this.components[component.type][entity.id];
-    },
+    }
 
     /**
      * Gets all the components of the specified type.
@@ -1109,12 +1000,12 @@ bb.World = (function() {
      * @param {String} componentType
      * @return {Object} components of the specified type
      */
-    getComponentsByType: function(componentType) {
+    getComponentsByType(componentType) {
       if (!this.components[componentType]) {
         this.components[componentType] = {}
       }
       return this.components[componentType];
-    },
+    }
 
     /**
      * Tags an entity.
@@ -1123,13 +1014,13 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @param {String} tag
      */
-    tagEntity: function(entity, tag) {
+    tagEntity(entity, tag) {
       if (typeof this.tags[tag] == "undefined") {
         this.tags[tag] = new Set;
       }
 
       this.tags[tag].add(entity);
-    },
+    }
 
     /**
      * Retrives the entities with the specified tag.
@@ -1138,9 +1029,9 @@ bb.World = (function() {
      * @param {String} tag
      * @return {Set} entities with this tag
      */
-    taggedWith: function(tag) {
+    taggedWith(tag) {
       return this.tags[tag] || new Set;
-    },
+    }
 
     /**
      * Removes the tag from an entity.
@@ -1148,13 +1039,13 @@ bb.World = (function() {
      * @method untagEntity
      * @param {String} tag
      */
-    untagEntity: function(entity, tag) {
+    untagEntity(entity, tag) {
       var entities = this.tags[tag];
       if (entities) {
         entities.delete(entity);
       }
     }
-  });
+  };
 
   return World;
 })();
@@ -1186,19 +1077,19 @@ bb.System = (function() {
    *       }
    *     });
    */
-  var System = bb.Class.extend({
+  class System {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.entities = new Set;
-    },
+    }
 
     /**
      * Process a game tick.
      * @method process
      */
-    process: function() {},
+    process() {}
 
     /**
      * Checks if an entity should belong to this system.
@@ -1209,52 +1100,52 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      * @return {Boolean} true if the entity should belong to this system.
      */
-    allowEntity: function(entity) {
+    allowEntity(entity) {
       throw "Not implemented";
-    },
+    }
 
     /**
      * Checks if this system should be processed.
      * @method shouldProcess
      */
-    shouldProcess: function() {
+    shouldProcess() {
       return true;
-    },
+    }
 
     /**
      * Callback that is called when an entity is added to this system.
      * @event onEntityAdd
      * @param {bb.Entity} entity
      */
-    onEntityAdd: function(entity) {},
+    onEntityAdd(entity) {}
 
     /**
      * Callback that is called when an entity of this system is changed.
      * @event onEntityChange
      * @param {bb.Entity} entity
      */
-    onEntityChange: function(entity) {},
+    onEntityChange(entity) {}
 
     /**
      * Callback that is called when an entity of this system is removed.
      * @event onEntityRemoval
      * @param {bb.Entity} entity
      */
-    onEntityRemoval: function(entity) {},
+    onEntityRemoval(entity) {}
 
     /**
      * Callback that is called when an entity of this system is enabled.
      * @event onEntityEnable
      * @param {bb.Entity} entity
      */
-    onEntityEnable: function(entity) {},
+    onEntityEnable(entity) {}
 
     /**
      * Callback that is called when an entity of this system is disabled.
      * @event onEntityDisable
      * @param {bb.Entity} entity
      */
-    onEntityDisable: function(entity) {},
+    onEntityDisable(entity) {}
 
     /**
      * Adds the entity to this system and fires the callbacks.
@@ -1262,14 +1153,14 @@ bb.System = (function() {
      * @private
      * @param {bb.Entity} entity
      */
-    addEntity: function(entity) {
+    addEntity(entity) {
       if (this.entities.has(entity)) {
         this.entities.add(entity);
       } else {
         this.entities.add(entity);
         this.onEntityAdd(entity);
       }
-    },
+    }
 
     /**
      * Removes the entity from this system and fires the callbacks.
@@ -1277,11 +1168,11 @@ bb.System = (function() {
      * @private
      * @param {bb.Entity} entity
      */
-    removeEntity: function(entity) {
+    removeEntity(entity) {
       if (this.entities.delete(entity)) {
         this.onEntityRemoval(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is added to the world, it calls this method, to
@@ -1290,11 +1181,11 @@ bb.System = (function() {
      * @method entityAdded
      * @param {bb.Entity} entity
      */
-    entityAdded: function(entity) {
+    entityAdded(entity) {
       if (this.allowEntity(entity)) {
         this.addEntity(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is removed to the world, this method is called,
@@ -1303,9 +1194,9 @@ bb.System = (function() {
      * @method entityRemoved
      * @param {bb.Entity} entity
      */
-    entityRemoved: function(entity) {
+    entityRemoved(entity) {
       this.removeEntity(entity);
-    },
+    }
 
     /**
      * Everytime we add or remove a component from an entity in the world,
@@ -1315,7 +1206,7 @@ bb.System = (function() {
      * @method entityChanged
      * @param {bb.Entity} entity
      */
-    entityChanged: function(entity) {
+    entityChanged(entity) {
       if (this.allowEntity(entity)) {
         if (this.entities.has(entity)) {
           this.onEntityChange(entity);
@@ -1325,35 +1216,37 @@ bb.System = (function() {
       } else {
         this.removeEntity(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is enabled in the world, this method is called.
      * @method entityEnabled
      * @param {bb.Entity} entity
      */
-    entityEnabled: function(entity) {
+    entityEnabled(entity) {
       if (this.allowEntity(entity)) {
         this.entities.add(entity);
         this.onEntityEnable(entity);
       }
-    },
+    }
 
     /**
      * Everytime a entity is disabled in the world, this method is called.
      * @method entityDisabled
      * @param {bb.Entity} entity
      */
-    entityDisabled: function(entity) {
+    entityDisabled(entity) {
       if (this.entities.delete(entity)) {
         this.onEntityDisable(entity);
       }
     }
-  });
+  };
 
   return System;
 })();
 bb.VoidSystem = (function() {
+  "use strict";
+
   /**
    * This system processes no entities, but still gets invoked.
    * You can use this system if you need to execute some game logic
@@ -1361,35 +1254,35 @@ bb.VoidSystem = (function() {
    *
    * @class bb.VoidSystem
    */
-  var VoidSystem = bb.System.extend({
-    allowEntity: function() {},
-    entityAdded: function() {},
-    entityRemoved: function() {},
-    entityChanged: function() {},
-    entityEnabled: function() {},
-    entityDisabled: function() {}
-  });
+  class VoidSystem extends bb.System {
+    allowEntity() {}
+    entityAdded() {}
+    entityRemoved() {}
+    entityChanged() {}
+    entityEnabled() {}
+    entityDisabled() {}
+  };
 
   return VoidSystem;
 })();
 bb.InputSystem = (function() {
   "use strict";
 
-  var InputSystem = bb.System.extend({
-    init: function(container) {
-      this.parent();
+  class InputSystem extends bb.System {
+    constructor(container) {
+      super();
       this.activeCommands = {};
       this.container = container;
       this.mouse = { x: 0, y: 0 };
       this.pmouse = { x: 0, y: 0 };
-    },
+    }
 
     /**
      * Allows only entities that have an input component.
      */
-    allowEntity: function(entity) {
+    allowEntity(entity) {
       return entity.hasComponent("input");
-    },
+    }
 
     /**
      * Starts to capture keyboard inputs.
@@ -1397,10 +1290,10 @@ bb.InputSystem = (function() {
      * @method startKeyboardCapture
      * @param {EventTarget} container the container that this input is handling.
      */
-    startKeyboardCapture: function() {
+    startKeyboardCapture() {
       this.container.addEventListener("keydown", this.keyDown.bind(this), false);
       this.container.addEventListener("keyup", this.keyUp.bind(this), false);
-    },
+    }
 
     /**
      * Starts to capture mouse position.
@@ -1410,11 +1303,11 @@ bb.InputSystem = (function() {
      *   This is important as the mouse coordinates will be translated to a relative location
      *   of the container area.
      */
-    startMouseCapture: function() {
+    startMouseCapture() {
       this.container.addEventListener("mouseup", this.mouseUp.bind(this), false);
       this.container.addEventListener("mousemove", this.mouseMove.bind(this), false);
       this.container.addEventListener("mousedown", this.mouseDown.bind(this), false);
-    },
+    }
 
     /**
      * Checks if a given action is active.
@@ -1423,9 +1316,9 @@ bb.InputSystem = (function() {
      * @param {Integer} keyCode the keycode
      * @returns {Boolean} the action is active or not.
      */
-    isPressing: function(keyCode) {
+    isPressing(keyCode) {
       return this.activeCommands[keyCode] || false;
-    },
+    }
 
     /**
      * Handles the browser keyDown event and adds the pressed
@@ -1434,10 +1327,10 @@ bb.InputSystem = (function() {
      * @method keyDown
      * @private
      */
-    keyDown: function(event) {
+    keyDown(event) {
       var keyCode = event.which || event.keyCode;
       this.activeCommands[keyCode] = true;
-    },
+    }
 
     /**
      * Handles the browser keyDown event and removes the pressed
@@ -1446,10 +1339,10 @@ bb.InputSystem = (function() {
      * @method onKeyDown
      * @private
      */
-    keyUp: function(event) {
+    keyUp(event) {
       var keyCode = event.which || event.keyCode;
       delete this.activeCommands[keyCode];
-    },
+    }
 
     /**
      * Handles the browser mouseDown event and adds the pressed
@@ -1458,10 +1351,10 @@ bb.InputSystem = (function() {
      * @method mouseDown
      * @private
      */
-    mouseDown: function(event) {
+    mouseDown(event) {
       var button = event.which || event.button;
       this.activeCommands[button] = true;
-    },
+    }
 
     /**
      * Handles the browser mouseDown event and removes the pressed
@@ -1470,10 +1363,10 @@ bb.InputSystem = (function() {
      * @method mouseUp
      * @private
      */
-    mouseUp: function(event) {
+    mouseUp(event) {
       var button = event.which || event.button;
       delete this.activeCommands[button];
-    },
+    }
 
     /**
      * Handles the browser mouseMove event and stores the current
@@ -1483,7 +1376,7 @@ bb.InputSystem = (function() {
      * @method mouseMove
      * @private
      */
-    mouseMove: function(event) {
+    mouseMove(event) {
       this.pmouse = this.mouse.clone();
 
       if (event.offsetX) {
@@ -1495,7 +1388,7 @@ bb.InputSystem = (function() {
         this.mouse.y = event.pageY - Math.round(clientRect.top + window.pageYOffset);
       }
     }
-  });
+  };
 
   return InputSystem;
 })();
@@ -1512,22 +1405,28 @@ bb.Component = (function() {
    * @class bb.Component
    * @property {String} type
    */
-  var Component = bb.Class.extend({
-    type: "component"
-  });
+  class Component {
+    get type() {
+      var name = this.constructor.name.replace("Component", "");
+      if (name.length == 0) {
+        throw new Error("You must define a component `type`");
+      } else {
+        return name[0].toLowerCase() + name.slice(1);
+      }
+    }
+  };
 
   return Component;
 })();
 bb.InputComponent = (function() {
   "use strict";
 
-  var InputComponent = bb.Component.extend({
-    type: "input",
-
-    init: function(input) {
+  class InputComponent extends bb.Component {
+    constructor(input) {
+      super();
       this.input = input;
       this.mappings = {};
-    },
+    }
 
     /**
      * Binds a key to a action.
@@ -1548,37 +1447,37 @@ bb.InputComponent = (function() {
      *     input.bind(bb.KEY.D, "walk forward");
      *     input.bind(bb.KEY.RIGHT, "walk forward");
      */
-    add: function(key, action) {
+    add(key, action) {
       this.mappings[key] = action;
       return this;
-    },
+    }
 
     /**
      * Unbinds a given key
      * @method unbind
      * @param {bb.KEY} key the key that will be unbinded
      */
-    remove: function(action) {
+    remove(action) {
       for (var key in this.mappings) {
         if (this.mappings[key] == action) {
           delete this.mappings[key];
         }
       }
-    },
+    }
 
     /**
      * Returns the key of an action.
      * @method action
      * @param {String} action the action name
      */
-    action: function(actionName) {
+    action(actionName) {
       for (var key in this.mappings) {
         if (this.mappings[key] == actionName) {
           return key;
         }
       }
     }
-  });
+  };
 
   return InputComponent;
 })();

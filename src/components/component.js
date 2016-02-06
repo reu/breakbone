@@ -11,9 +11,16 @@ bb.Component = (function() {
    * @class bb.Component
    * @property {String} type
    */
-  var Component = bb.Class.extend({
-    type: "component"
-  });
+  class Component {
+    get type() {
+      var name = this.constructor.name.replace("Component", "");
+      if (name.length == 0) {
+        throw new Error("You must define a component `type`");
+      } else {
+        return name[0].toLowerCase() + name.slice(1);
+      }
+    }
+  };
 
   return Component;
 })();

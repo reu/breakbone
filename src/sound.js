@@ -10,12 +10,12 @@ bb.Sound = (function() {
    * @property {Boolean} isPaused true if the sound has been paused
    * @property {Boolean} isPlaying true if the sound is being play
    */
-  var Sound = bb.Class.extend({
+  class Sound {
     /**
      * @constructor
      * @param {String} url the path to the sound file
      */
-    init: function(url) {
+    constructor(url) {
       this.url = url;
       this._volume = 1;
 
@@ -32,7 +32,7 @@ bb.Sound = (function() {
           return !this.data.ended;
         }.bind(this)
       });
-    },
+    }
 
     /**
      * Loads a sound file and executes the callback when loaded.
@@ -41,7 +41,7 @@ bb.Sound = (function() {
      * @param {Function} onLoadCallback callback that will be
      *     called when the sound file is loaded
      */
-    load: function(onLoadCallback) {
+    load(onLoadCallback) {
       if (this.isLoaded) {
         if (onLoadCallback) {
           onLoadCallback(this);
@@ -60,7 +60,7 @@ bb.Sound = (function() {
         this.data.src = this.url;
         this.data.load();
       }
-    },
+    }
 
     /**
      * Plays the sound file.
@@ -68,7 +68,7 @@ bb.Sound = (function() {
      * @method play
      * @param {Boolean} loop the sound should loop
      */
-    play: function(loop) {
+    play(loop) {
       if (!this.isLoaded) return;
       if (typeof loop != "undefined" && typeof loop != "null") {
         this.data.loop = !!loop;
@@ -76,7 +76,7 @@ bb.Sound = (function() {
 
       this.data.play();
       this.data.isPaused = false;
-    },
+    }
 
     /**
      * Stops the sound.
@@ -84,10 +84,10 @@ bb.Sound = (function() {
      * @method stop
      * @param {Boolean} loop the sound should loop
      */
-    stop: function() {
+    stop() {
       this.data.pause();
       this.data.currentTime = 0;
-    },
+    }
 
     /**
      * Pauses the sound.
@@ -95,10 +95,10 @@ bb.Sound = (function() {
      * @method pause
      * @param {Boolean} loop the sound should loop
      */
-    pause: function() {
+    pause() {
       this.data.pause();
       this.isPaused = true;
-    },
+    }
 
     /**
      * Pauses the sound.
@@ -107,10 +107,10 @@ bb.Sound = (function() {
      * @private
      * @param {Number} volume the volume of this sound, from 0 to 1
      */
-    setVolume: function(volume) {
+    setVolume(volume) {
       this._volume = volume;
       this.data.volume = this._volume * bb.Sound.masterVolume;
-    },
+    }
 
     /**
      * Get the sound volume.
@@ -119,15 +119,15 @@ bb.Sound = (function() {
      * @private
      * @return {Number} the volume of this sound, from 0 to 1
      */
-    getVolume: function() {
+    getVolume() {
       return this._volume;
-    },
+    }
 
     /**
      * @method onAudioLoaded
      * @private
      */
-    onAudioLoaded: function(event) {
+    onAudioLoaded(event) {
       this.isLoaded = true;
       this.setVolume(this.volume);
 
@@ -136,16 +136,16 @@ bb.Sound = (function() {
       if (this.onLoadCallback) {
         this.onLoadCallback(this);
       }
-    },
+    }
 
     /**
      * @method onLoadError
      * @private
      */
-    onLoadError: function() {
+    onLoadError() {
       throw "Error while loading sound: " + this.url;
     }
-  });
+  };
 
   /**
    * The list of all loaded sounds.

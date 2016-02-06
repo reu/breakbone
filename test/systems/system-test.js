@@ -1,12 +1,14 @@
 describe("bb.System", function() {
-  var system, item;
+  "use strict";
+
+  var system, item, entity;
 
   beforeEach(function() {
-    var NullSystem = bb.System.extend({
-      allowEntity: function(entity) {
+    var NullSystem = class NullSystem extends bb.System {
+      allowEntity(entity) {
         return true;
       }
-    });
+    };
 
     system = new NullSystem;
     entity = new bb.Entity;

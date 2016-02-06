@@ -1,79 +1,79 @@
 bb.Vector = (function() {
   "use strict";
 
-  var Vector = bb.Class.extend({
-    init: function(x, y) {
+  class Vector {
+    constructor(x, y) {
       this.x = x || 0;
       this.y = y || 0;
-    },
+    }
 
-    add: function(vector) {
+    add(vector) {
       this.x += vector.x;
       this.y += vector.y;
       return this;
-    },
+    }
 
-    subtract: function(vector) {
+    subtract(vector) {
       this.x -= vector.x;
       this.y -= vector.y;
       return this;
-    },
+    }
 
-    multiply: function(scalar) {
+    multiply(scalar) {
       this.x *= scalar;
       this.y *= scalar;
       return this;
-    },
+    }
 
-    divide: function(scalar) {
+    divide(scalar) {
       this.x /= scalar;
       this.y /= scalar;
       return this;
-    },
+    }
 
-    lengthSquared: function() {
+    lengthSquared() {
       return this.x * this.x + this.y * this.y;
-    },
+    }
 
-    length: function() {
+    length() {
       return Math.sqrt(this.lengthSquared());
-    },
+    }
 
-    normalize: function() {
+    normalize() {
       var length = this.length();
       if (length > 0 && length != 1) this.divide(length);
       return this;
-    },
+    }
 
-    limit: function(max) {
+    limit(max) {
       if (this.length() > max) return this.normalize() && this.multiply(max);
-    },
+    }
 
-    dot: function(vector) {
+    dot(vector) {
       return this.x * vector.x + this.y * vector.y;
-    },
+    }
 
-    distance: function(vector) {
+    distance(vector) {
       var dx = this.x - vector.x,
           dy = this.y - vector.y;
 
       return Math.sqrt(dx * dx + dy * dy);
-    },
+    }
 
-    reverse: function() {
+    reverse() {
       this.x *= -1;
       this.y *= -1;
       return this;
-    },
+    }
 
-    clone: function() {
+    clone() {
       return new Vector(this.x, this.y);
-    },
+    }
 
-    toString: function() {
+    toString() {
       return "(" + ([this.x, this.y].join(", ")) + ")";
     }
-  });
+  };
 
   Vector.add = function(v1, v2) {
     return new Vector(v1.x + v2.x, v1.y + v2.y);

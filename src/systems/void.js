@@ -1,4 +1,6 @@
 bb.VoidSystem = (function() {
+  "use strict";
+
   /**
    * This system processes no entities, but still gets invoked.
    * You can use this system if you need to execute some game logic
@@ -6,14 +8,14 @@ bb.VoidSystem = (function() {
    *
    * @class bb.VoidSystem
    */
-  var VoidSystem = bb.System.extend({
-    allowEntity: function() {},
-    entityAdded: function() {},
-    entityRemoved: function() {},
-    entityChanged: function() {},
-    entityEnabled: function() {},
-    entityDisabled: function() {}
-  });
+  class VoidSystem extends bb.System {
+    allowEntity() {}
+    entityAdded() {}
+    entityRemoved() {}
+    entityChanged() {}
+    entityEnabled() {}
+    entityDisabled() {}
+  };
 
   return VoidSystem;
 })();

@@ -1,9 +1,11 @@
 describe("bb.Loader", function() {
-  var NullResource = bb.Class.extend({
-    load: function(loaded) {
+  "use strict";
+
+  class NullResource {
+    load(loaded) {
       loaded();
     }
-  });
+  };
 
   describe("#add", function() {
     it("adds resources to the loading queue", function() {

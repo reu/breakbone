@@ -9,11 +9,11 @@ bb.World = (function() {
    * @property {Array} disabledEntities the disabled entities
    * @property {Array} systems the systems your world processes
    */
-  var World = bb.Class.extend({
+  class World {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.systems = [];
 
       this.entities = new Set;
@@ -28,23 +28,23 @@ bb.World = (function() {
       this.components = {};
 
       this.tags = {};
-    },
+    }
 
     /**
      * Notifies and processes all the systems.
      * @method process
      */
-    process: function() {
+    process() {
       this.notifySystems();
       this.processSystems();
-    },
+    }
 
     /**
      * Helper method to yield all the systems with all the entities.
      * @method check
      * @private
      */
-    check: function(entities, action) {
+    check(entities, action) {
       if (entities.size) {
         var systems = this.systems;
 
@@ -56,14 +56,14 @@ bb.World = (function() {
 
         entities.clear();
       }
-    },
+    }
 
     /**
      * Notifies the systems about entities added, changed, disabled,
      * enabled and removed.
      * @method notifySystems
      */
-    notifySystems: function() {
+    notifySystems() {
       this.check(this.addedEntities, function(entity, system) {
         system.entityAdded(entity);
       });
@@ -83,38 +83,38 @@ bb.World = (function() {
       this.check(this.removedEntities, function(entity, system) {
         system.entityRemoved(entity);
       });
-    },
+    }
 
     /**
      * Processes all the systems.
      * @method processSystems
      */
-    processSystems: function() {
+    processSystems() {
       for (var i = 0, length = this.systems.length; i < length; i++) {
         var system = this.systems[i];
         if (system.shouldProcess()) system.process();
       }
-    },
+    }
 
     /**
      * Creates a new entity and adds it to the world.
      * @method createEntity
      */
-    createEntity: function() {
+    createEntity() {
       var entity = new bb.Entity(this);
       this.addEntity(entity);
       return entity;
-    },
+    }
 
     /**
      * Adds an entity to the world.
      * @method addEntity
      * @param {bb.Entity} entity
      */
-    addEntity: function(entity) {
+    addEntity(entity) {
       this.entities.add(entity);
       this.addedEntities.add(entity);
-    },
+    }
 
     /**
      * Adds a system to the world
@@ -122,52 +122,52 @@ bb.World = (function() {
      * @param {bb.System} system
      * @return {bb.World} this world
      */
-    addSystem: function(system) {
+    addSystem(system) {
       system.world = this;
       this.systems.push(system);
       return this;
-    },
+    }
 
     /**
      * Removes an entity from the world.
      * @method removeEntity
      * @param {bb.Entity} entity
      */
-    removeEntity: function(entity) {
+    removeEntity(entity) {
       this.entities.delete(entity);
       this.removedEntities.add(entity);
 
       for (var tag in this.tags) {
         this.tags[tag].delete(entity);
       }
-    },
+    }
 
     /**
      * Changes an entity
      * @method changeEntity
      * @param {bb.Entity} entity
      */
-    changeEntity: function(entity) {
+    changeEntity(entity) {
       this.changedEntities.add(entity);
-    },
+    }
 
     /**
      * Enable an entity of the world.
      * @method enableEntity
      * @param {bb.Entity} entity
      */
-    enableEntity: function(entity) {
+    enableEntity(entity) {
       this.enabledEntities.add(entity);
-    },
+    }
 
     /**
      * Disable an entity of the world.
      * @method disableEntity
      * @param {bb.Entity} entity
      */
-    disableEntity: function(entity) {
+    disableEntity(entity) {
       this.disabledEntities.add(entity);
-    },
+    }
 
     /**
      * Add a component to an entity.
@@ -176,12 +176,12 @@ bb.World = (function() {
      * @param {bb.Component} component
      * @return {bb.Component} the component added to the entity
      */
-    addEntityComponent: function(entity, component) {
+    addEntityComponent(entity, component) {
       var components = this.getComponentsByType(component.type);
       components[entity.id] = component;
       this.changeEntity(entity);
       return component;
-    },
+    }
 
     /**
      * Add a component to an entity.
@@ -190,7 +190,7 @@ bb.World = (function() {
      * @param {String} componentType the type of the component
      * @return {bb.Component} the component or undefined if it is not found
      */
-    getEntityComponent: function(entity, componentType) {
+    getEntityComponent(entity, componentType) {
       var components = this.getComponentsByType(componentType);
 
       for (var entityId in components) {
@@ -198,7 +198,7 @@ bb.World = (function() {
           return components[entityId];
         }
       }
-    },
+    }
 
     /**
      * Retrives all the components of an entity.
@@ -206,7 +206,7 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @return {Array} all the components the entity has
      */
-    getEntityComponents: function(entity) {
+    getEntityComponents(entity) {
       var components = [];
 
       for (var type in this.components) {
@@ -218,7 +218,7 @@ bb.World = (function() {
       }
 
       return components;
-    },
+    }
 
     /**
      * Removes a component from an entity.
@@ -226,10 +226,10 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @param {bb.Component} component
      */
-    removeEntityComponent: function(entity, component) {
+    removeEntityComponent(entity, component) {
       this.changeEntity(entity);
       delete this.components[component.type][entity.id];
-    },
+    }
 
     /**
      * Gets all the components of the specified type.
@@ -238,12 +238,12 @@ bb.World = (function() {
      * @param {String} componentType
      * @return {Object} components of the specified type
      */
-    getComponentsByType: function(componentType) {
+    getComponentsByType(componentType) {
       if (!this.components[componentType]) {
         this.components[componentType] = {}
       }
       return this.components[componentType];
-    },
+    }
 
     /**
      * Tags an entity.
@@ -252,13 +252,13 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      * @param {String} tag
      */
-    tagEntity: function(entity, tag) {
+    tagEntity(entity, tag) {
       if (typeof this.tags[tag] == "undefined") {
         this.tags[tag] = new Set;
       }
 
       this.tags[tag].add(entity);
-    },
+    }
 
     /**
      * Retrives the entities with the specified tag.
@@ -267,9 +267,9 @@ bb.World = (function() {
      * @param {String} tag
      * @return {Set} entities with this tag
      */
-    taggedWith: function(tag) {
+    taggedWith(tag) {
       return this.tags[tag] || new Set;
-    },
+    }
 
     /**
      * Removes the tag from an entity.
@@ -277,13 +277,13 @@ bb.World = (function() {
      * @method untagEntity
      * @param {String} tag
      */
-    untagEntity: function(entity, tag) {
+    untagEntity(entity, tag) {
       var entities = this.tags[tag];
       if (entities) {
         entities.delete(entity);
       }
     }
-  });
+  };
 
   return World;
 })();

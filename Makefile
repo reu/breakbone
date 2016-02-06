@@ -2,7 +2,6 @@ build: concatenate minify
 
 concatenate:
 	cat src/breakbone.js\
-		src/core/class.js\
 		src/core/vector.js\
 		src/keys.js\
 		src/runner.js\

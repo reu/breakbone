@@ -1,83 +1,85 @@
-var Spatial = bb.Component.extend({
-  type: "spatial",
+"use strict";
 
-  init: function(x, y, radius) {
+class Spatial extends bb.Component {
+  constructor(x, y, radius) {
+    super();
     this.x = x || 0;
     this.y = y || 0;
 
     this.radius = radius || 10;
 
     this.rotation = 0;
-  },
+  }
 
-  rotateLeft: function(angle) {
+  rotateLeft(angle) {
     this.rotation -= angle || 0.03;
-  },
+  }
 
-  rotateRight: function(angle) {
+  rotateRight(angle) {
     this.rotation += angle || 0.03;
-  },
+  }
 
-  getVector: function() {
+  getVector() {
     return new bb.Vector(this.x, this.y);
   }
-});
+};
 
-var Velocity = bb.Vector.extend({
-  type: "velocity",
-  damping: 0.995,
-});
+class Velocity extends bb.Vector {
+  get type() { return "velocity" }
 
-var BoundaryWrap = bb.Component.extend({
-  type: "boundaryWrap"
-});
+  constructor(x, y, damping) {
+    super(x, y);
+    this.damping = damping || 0.995;
+  }
+};
 
-var ThrustEngine = bb.Component.extend({
-  type: "thrustEngine",
-  on: false,
+class BoundaryWrap extends bb.Component {};
 
-  turnOn: function() {
-    this.on = true;
-  },
-
-  turnOff: function() {
+class ThrustEngine extends bb.Component {
+  constructor() {
+    super();
     this.on = false;
   }
-});
 
-var Weapon = bb.Component.extend({
-  type: "weapon",
-  triggering: true,
+  turnOn() {
+    this.on = true;
+  }
 
-  init: function(rate) {
+  turnOff() {
+    this.on = false;
+  }
+};
+
+class Weapon extends bb.Component {
+  constructor(rate) {
+    super();
     this.rate = rate || 10;
-  },
-
-  holdTrigger: function() {
     this.triggering = true;
-  },
+  }
 
-  releaseTrigger: function() {
+  holdTrigger() {
+    this.triggering = true;
+  }
+
+  releaseTrigger() {
     this.triggering = false;
   }
-});
+};
 
-var Expire = bb.Component.extend({
-  type: "expire",
-
-  init: function(lifetime) {
+class Expire extends bb.Component {
+  constructor(lifetime) {
+    super();
     this.lifetime = lifetime;
-  },
+  }
 
-  isExpired: function() {
+  isExpired() {
     return this.lifetime <= 0;
   }
-});
+};
 
-var Asteroid = bb.Component.extend({
-  type: "asteroid",
-
-  init: function(radius) {
+class Asteroid extends bb.Component {
+  constructor(radius) {
+    super();
     this.points = [];
 
     for (var angle = 0; angle < Math.PI * 2; angle += Math.random()) {
@@ -88,44 +90,40 @@ var Asteroid = bb.Component.extend({
       });
     }
   }
-});
+};
 
-var Collidable = bb.Component.extend({
-  type: "collidable"
-});
+class Collidable extends bb.Component {};
 
-var Respawn = bb.Component.extend({
-  type: "respawn",
-
-  init: function(timer) {
+class Respawn extends bb.Component {
+  constructor(timer) {
+    super();
     this.timer = timer || 120;
   }
-});
+};
 
-var Renderable = bb.Component.extend({
-  type: "renderable",
-
-  init: function(name) {
+class Renderable extends bb.Component {
+  constructor(name) {
+    super();
     this.name = name;
   }
-});
+};
 
-var AsteroidSystem = bb.System.extend({
-  init: function(area) {
-    this.parent();
+class AsteroidSystem extends bb.System {
+  constructor(area) {
+    super();
     this.area = area;
-  },
+  }
 
-  allowEntity: function(entity) {
+  allowEntity(entity) {
     return entity.hasComponent("asteroid");
-  },
+  }
 
-  process: function() {
+  process() {
     this.spawnAsteroid();
     this.entities.forEach(this.destroyAsteroid.bind(this));
-  },
+  }
 
-  spawnAsteroid: function() {
+  spawnAsteroid() {
     if (Math.random() > 0.99) {
       var asteroid = this.world.createEntity();
       asteroid.tag("asteroid");
@@ -154,9 +152,9 @@ var AsteroidSystem = bb.System.extend({
               .addComponent(velocity)
               .addComponent(new Renderable("asteroid"));
     }
-  },
+  }
 
-  destroyAsteroid: function(asteroid) {
+  destroyAsteroid(asteroid) {
     var position = asteroid.spatial.getVector();
     var center = new bb.Vector(this.area.width / 2, this.height / 2);
 
@@ -164,14 +162,16 @@ var AsteroidSystem = bb.System.extend({
       asteroid.remove();
     }
   }
-});
+};
 
-var ThrustEngineSystem = bb.System.extend({
-  allowEntity: function(entity) {
-    return entity.hasComponent("thrustEngine") && entity.hasComponent("velocity") && entity.hasComponent("spatial");
-  },
+class ThrustEngineSystem extends bb.System {
+  allowEntity(entity) {
+    return entity.hasComponent("thrustEngine") &&
+           entity.hasComponent("velocity") &&
+           entity.hasComponent("spatial");
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(function(ship) {
       if (ship.thrustEngine.on) {
         ship.velocity.x += Math.cos(ship.spatial.rotation) * 0.1;
@@ -179,37 +179,37 @@ var ThrustEngineSystem = bb.System.extend({
       }
     });
   }
-});
+};
 
-var MovementSystem = bb.System.extend({
-  allowEntity: function(entity) {
+class MovementSystem extends bb.System {
+  allowEntity(entity) {
     return entity.hasComponent("velocity") && entity.hasComponent("spatial");
-  },
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(this.integrate.bind(this));
-  },
+  }
 
-  integrate: function(entity) {
+  integrate(entity) {
     entity.velocity.multiply(entity.velocity.damping);
     entity.velocity.limit(4);
 
     entity.spatial.x += entity.velocity.x;
     entity.spatial.y += entity.velocity.y;
   }
-});
+};
 
-var BoundingSystem = bb.System.extend({
-  init: function(boundary) {
-    this.parent();
+class BoundingSystem extends bb.System {
+  constructor(boundary) {
+    super();
     this.boundary = boundary;
-  },
+  }
 
-  allowEntity: function (entity) {
+  allowEntity(entity) {
     return entity.hasComponent("spatial") && entity.hasComponent("boundaryWrap");
-  },
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(function(entity) {
       if (entity.spatial.x < 0) {
         entity.spatial.x = this.boundary.width;
@@ -228,33 +228,33 @@ var BoundingSystem = bb.System.extend({
       }
     }.bind(this));
   }
-});
+};
 
-var CollisionSystem = bb.System.extend({
-  init: function() {
-    this.parent();
+class CollisionSystem extends bb.System {
+  constructor() {
+    super();
     this.ships = new Set;
     this.bullets = new Set;
     this.asteroids = new Set;
-  },
+  }
 
-  allowEntity: function(entity) {
+  allowEntity(entity) {
     return entity.hasComponent("collidable") && entity.hasComponent("spatial");
-  },
+  }
 
-  onEntityAdd: function(entity) {
+  onEntityAdd(entity) {
     if (entity.hasTag("ship")) this.ships.add(entity);
     if (entity.hasTag("bullet")) this.bullets.add(entity);
     if (entity.hasTag("asteroid")) this.asteroids.add(entity);
-  },
+  }
 
-  onEntityRemoval: function(entity) {
+  onEntityRemoval(entity) {
     this.ships.delete(entity);
     this.bullets.delete(entity);
     this.asteroids.delete(entity);
-  },
+  }
 
-  process: function() {
+  process() {
     var world = this.world;
     var ships = this.ships;
     var bullets = this.bullets;
@@ -312,15 +312,15 @@ var CollisionSystem = bb.System.extend({
       });
     });
   }
-});
+};
 
-var InputSystem = bb.InputSystem.extend({
-  init: function() {
-    this.parent(window);
+class InputSystem extends bb.InputSystem {
+  constructor() {
+    super(window);
     this.startKeyboardCapture();
-  },
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(function(entity) {
       var input = entity.input;
 
@@ -348,31 +348,31 @@ var InputSystem = bb.InputSystem.extend({
       }
     }.bind(this));
   }
-});
+};
 
-var WeaponSystem = bb.System.extend({
-  init: function() {
-    this.parent();
+class WeaponSystem extends bb.System {
+  constructor() {
+    super();
     this.weaponsTimers = {};
-  },
+  }
 
-  allowEntity: function(entity) {
+  allowEntity(entity) {
     return entity.hasComponent("weapon") && entity.hasComponent("spatial");
-  },
+  }
 
-  onEntityAdd: function(entity) {
+  onEntityAdd(entity) {
     this.weaponsTimers[entity.weapon] = 0;
-  },
+  }
 
-  onEntityRemoval: function(entity) {
+  onEntityRemoval(entity) {
     delete this.weaponsTimers[entity.weapon];
-  },
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(this.shoot.bind(this));
-  },
+  }
 
-  shoot: function(entity) {
+  shoot(entity) {
     if (entity.weapon.triggering && this.weaponsTimers[entity.weapon] <= 0) {
       this.weaponsTimers[entity.weapon] = entity.weapon.rate;
 
@@ -395,14 +395,14 @@ var WeaponSystem = bb.System.extend({
 
     this.weaponsTimers[entity.weapon] -= 1;
   }
-});
+};
 
-var ExpirationSystem = bb.System.extend({
-  allowEntity: function(entity) {
+class ExpirationSystem extends bb.System {
+  allowEntity(entity) {
     return entity.hasComponent("expire");
-  },
+  }
 
-  process: function() {
+  process() {
     this.entities.forEach(function(entity) {
       entity.expire.lifetime -= 1;
 
@@ -411,19 +411,19 @@ var ExpirationSystem = bb.System.extend({
       }
     });
   }
-});
+};
 
-var ShipRespawnSystem = bb.System.extend({
-  init: function(respawnArea) {
-    this.parent();
+class ShipRespawnSystem extends bb.System {
+  constructor(respawnArea) {
+    super();
     this.respawnArea = respawnArea;
-  },
+  }
 
-  allowEntity: function(entity) {
+  allowEntity(entity) {
     return entity.hasComponent("respawn");
-  },
+  }
 
-  process: function() {
+  process() {
     var respawnArea = this.respawnArea;
 
     this.entities.forEach(function(entity) {
@@ -439,31 +439,31 @@ var ShipRespawnSystem = bb.System.extend({
       }
     });
   }
-});
+};
 
-var RenderingSystem = bb.System.extend({
-  init: function(ctx) {
-    this.parent();
+class RenderingSystem extends bb.System {
+  constructor(ctx) {
+    super();
     this.ctx = ctx;
-  },
+  }
 
-  allowEntity: function(entity) {
+  allowEntity(entity) {
     return entity.hasComponent("spatial") && entity.hasComponent("renderable");
-  },
+  }
 
-  process: function() {
+  process() {
     this.clear();
     this.entities.forEach(this.render.bind(this));
-  },
+  }
 
-  clear: function() {
+  clear() {
     this.ctx.save();
     this.ctx.fillStyle = "#000";
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.restore();
-  },
+  }
 
-  render: function(entity) {
+  render(entity) {
     switch (entity.renderable.name) {
       case "ship":
         this.renderShip(entity);
@@ -475,9 +475,9 @@ var RenderingSystem = bb.System.extend({
         this.renderAsteroid(entity);
         break;
     }
-  },
+  }
 
-  renderShip: function(ship) {
+  renderShip(ship) {
     this.ctx.save();
     this.ctx.strokeStyle = "#fff";
     this.ctx.beginPath();
@@ -490,9 +490,9 @@ var RenderingSystem = bb.System.extend({
     this.ctx.closePath();
     this.ctx.stroke();
     this.ctx.restore();
-  },
+  }
 
-  renderBullet: function(bullet) {
+  renderBullet(bullet) {
     this.ctx.save();
     this.ctx.fillStyle = "#fff";
     this.ctx.beginPath();
@@ -501,9 +501,9 @@ var RenderingSystem = bb.System.extend({
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.restore();
-  },
+  }
 
-  renderAsteroid: function(asteroid) {
+  renderAsteroid(asteroid) {
     this.ctx.save();
     this.ctx.fillStyle = "#fff";
     this.ctx.beginPath();
@@ -517,24 +517,24 @@ var RenderingSystem = bb.System.extend({
     this.ctx.fill();
     this.ctx.restore();
   }
-});
+};
 
-var Game = bb.Class.extend({
-  init: function(ctx) {
+class Game {
+  constructor(ctx) {
     this.ctx = ctx;
     this.runner = new bb.Runner;
     this.reset();
-  },
+  }
 
-  start: function() {
+  start() {
     this.runner.start();
-  },
+  }
 
-  pause: function() {
+  pause() {
     this.runner.stop();
-  },
+  }
 
-  reset: function() {
+  reset() {
     var world = new bb.World;
 
     var commands = new bb.InputComponent;
@@ -569,4 +569,4 @@ var Game = bb.Class.extend({
     this.runner.onTick = world.process.bind(world);
     this.start();
   }
-});
+};

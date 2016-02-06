@@ -8,15 +8,15 @@ bb.Entity = (function() {
    * @property {bb.World} world world that this entity belongs to
    * @property {Number} id the unique id of this entity
    */
-  var Entity = bb.Class.extend({
+  class Entity {
     /**
      * @constructor
      * @param {bb.World} world
      */
-    init: function(world) {
+    constructor(world) {
       this.world = world;
       this.id = bb.objectId(this);
-    },
+    }
 
     /**
      * Checks if the entity contains the specified component type.
@@ -25,9 +25,9 @@ bb.Entity = (function() {
      * @param {String} componentType
      * @return {Boolean} true if the entity contains the specified component
      */
-    hasComponent: function(componentType) {
+    hasComponent(componentType) {
       return !!this.getComponent(componentType);
-    },
+    }
 
     /**
      * Adds a new component to this entity.
@@ -36,11 +36,11 @@ bb.Entity = (function() {
      * @param {bb.Component}
      * @return {bb.Entity} itself
      */
-    addComponent: function(component) {
+    addComponent(component) {
       this.world.addEntityComponent(this, component);
       this[component.type] = component;
       return this;
-    },
+    }
 
     /**
      * Returns the list of components this entitiy has.
@@ -48,9 +48,9 @@ bb.Entity = (function() {
      * @method getComponents
      * @return {Array} components
      */
-    getComponents: function() {
+    getComponents() {
       return this.world.getEntityComponents(this);
-    },
+    }
 
     /**
      * Gets the component of a specific type.
@@ -59,9 +59,9 @@ bb.Entity = (function() {
      * @param {String} componentType
      * @return {bb.Component}
      */
-    getComponent: function(componentType) {
+    getComponent(componentType) {
       return this.world.getEntityComponent(this, componentType);
-    },
+    }
 
     /**
      * Removes a component from this entity.
@@ -70,7 +70,7 @@ bb.Entity = (function() {
      * @param {bb.Component | String} componentOrType
      * @return {bb.Entity} itself
      */
-    removeComponent: function(component) {
+    removeComponent(component) {
       if (typeof component == "string") {
         component = this.getComponent(component);
       }
@@ -79,51 +79,51 @@ bb.Entity = (function() {
       delete this[component.type];
 
       return this;
-    },
+    }
 
     /**
      * Removes itself from the world.
      * @method remove
      */
-    remove: function() {
+    remove() {
       this.world.removeEntity(this);
-    },
+    }
 
     /**
      * Enables itself in the world.
      * @method enable
      */
-    enable: function() {
+    enable() {
       this.world.enableEntity(this);
-    },
+    }
 
     /**
      * Disables itself in the world.
      * @method disable
      */
-    disable: function() {
+    disable() {
       this.world.disableEntity(this);
-    },
+    }
 
     /**
      * Add a tag to itself
      * @method tag
      * @return {bb.Entity} itself
      */
-    tag: function(name) {
+    tag(name) {
       this.world.tagEntity(this, name);
       return this;
-    },
+    }
 
     /**
      * Removes a tag from itself
      * @method untag
      * @return {bb.Entity} itself
      */
-    untag: function(name) {
+    untag(name) {
       this.world.untagEntity(this, name);
       return this;
-    },
+    }
 
     /**
      * Check if this entity has a tag.
@@ -131,10 +131,10 @@ bb.Entity = (function() {
      * @param {String} name the tag name
      * @return {Boolean}
      */
-    hasTag: function(name) {
+    hasTag(name) {
       return this.world.taggedWith(name).has(this);
     }
-  });
+  };
 
   return Entity;
 })();

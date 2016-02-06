@@ -1,13 +1,10 @@
 describe("bb.Entity", function() {
+  "use strict";
+
   var world;
 
-  var VelocityComponent = bb.Component.extend({
-    type: "velocity"
-  });
-
-  var PositionComponent = bb.Component.extend({
-    type: "position"
-  });
+  class VelocityComponent extends bb.Component {};
+  class PositionComponent extends bb.Component {};
 
   beforeEach(function() {
     world = new bb.World;

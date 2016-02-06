@@ -9,17 +9,17 @@ bb.Loader = (function() {
    * @event onFinish fired when all the resources are loaded
    * @event onProgress fired when each resource is loaded
    */
-  var Loader = bb.Class.extend({
+  class Loader {
     /**
      * @constructor
      */
-    init: function() {
+    constructor() {
       this.resources = [];
       this.loadedCount = 0;
 
       this.onProgress = function(percentage, count) {};
       this.onFinish = function() {};
-    },
+    }
 
     /**
      * Adds resources to the loading queue.
@@ -27,7 +27,7 @@ bb.Loader = (function() {
      * @method add
      * @param {Arguments} resources
      */
-    add: function() {
+    add() {
       for (var i = 0; i < arguments.length; i++) {
         var resource = arguments[i];
 
@@ -38,7 +38,7 @@ bb.Loader = (function() {
         }
       }
       return this;
-    },
+    }
 
     /**
      * Loads all the resources and fires the callback when finished.
@@ -46,7 +46,7 @@ bb.Loader = (function() {
      * @method load
      * @param {Function} callback
      */
-    load: function(callback) {
+    load(callback) {
       this.loadedCount = 0;
 
       this.onProgress(0, this.loadedCount);
@@ -62,20 +62,20 @@ bb.Loader = (function() {
           }
         });
       });
-    },
+    }
 
     /**
      * Event fired when each resource is loaded.
      * @event onProgress
      */
-    onProgress: function(percentage, count) {},
+    onProgress(percentage, count) {}
 
     /**
      * Event fired when all the resources are loaded.
      * @event onFinish
      */
-    onFinish: function() {}
-  });
+    onFinish() {}
+  };
 
   return Loader;
 })();

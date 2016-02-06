@@ -1,27 +1,18 @@
 describe("bb.World", function() {
+  "use strict";
+
   var world;
 
-  var NullSystem = bb.System.extend({
-    allowEntity: function(entity) {
+  class NullSystem extends bb.System {
+    allowEntity(entity) {
       return true; // Accept all entities
     }
-  });
+  };
 
-  var VelocityComponent = bb.Component.extend({
-    type: "velocity"
-  });
-
-  var PositionComponent = bb.Component.extend({
-    type: "position"
-  });
-
-  var TransformComponent = bb.Component.extend({
-    type: "transform"
-  });
-
-  var AiComponent = bb.Component.extend({
-    type: "ai"
-  });
+  class VelocityComponent extends bb.Component {};
+  class PositionComponent extends bb.Component {};
+  class TransformComponent extends bb.Component {};
+  class AiComponent extends bb.Component {};
 
   beforeEach(function() {
     world = new bb.World;

@@ -9,15 +9,15 @@ bb.Image = (function() {
    * @property {Number} width
    * @property {Number} height
    */
-  bb.Image = bb.Class.extend({
+  class Image {
     /**
      * @constructor
      * @param {String} url the path to the image
      */
-    init: function(url) {
+    constructor(url) {
       this.url = url;
       this.isLoaded = false;
-    },
+    }
 
     /**
      * Loads a image and executes the callback when loaded.
@@ -26,7 +26,7 @@ bb.Image = (function() {
      * @param {Function} onLoadCallback callback that will be
      *     called when the image is loaded
      */
-    load: function(onLoadCallback) {
+    load(onLoadCallback) {
       if (this.isLoaded) {
         if (onLoadCallback) {
           onLoadCallback(this);
@@ -39,13 +39,13 @@ bb.Image = (function() {
         image.onerror = this.onLoadError.bind(this);
         image.src = this.url;
       }
-    },
+    }
 
     /**
      * @method onImageLoaded
      * @private
      */
-    onImageLoaded: function(event) {
+    onImageLoaded(event) {
       this.data = event.srcElement;
       this.width = this.data.width;
       this.height = this.data.height;
@@ -54,16 +54,16 @@ bb.Image = (function() {
       if (this.onLoadCallback) {
         this.onLoadCallback(this);
       }
-    },
+    }
 
     /**
      * @method onLoadError
      * @private
      */
-    onLoadError: function() {
+    onLoadError() {
       throw "Error while loading image: " + this.url;
     }
-  });
+  };
 
-  return bb.Image;
+  return Image;
 })();

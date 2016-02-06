@@ -2,7 +2,6 @@ expect = require("expect.js");
 sinon = require("sinon");
 
 require("../src/breakbone.js");
-require("../src/core/class.js");
 require("../src/runner.js");
 require("../src/keys.js");
 require("../src/loader.js");

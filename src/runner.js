@@ -1,4 +1,6 @@
 bb.Runner = (function(window) {
+  "use strict";
+
   var displayBind = window.requestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     function(callback) {
@@ -12,22 +14,22 @@ bb.Runner = (function(window) {
    *
    * @class Runner
    */
-  var Runner = bb.Class.extend({
+  class Runner {
     /**
      * @constructor
      * @param {Integer} fps the frames per second that this runner will run
      */
-    init: function(fps) {
+    constructor(fps) {
       this.fps = fps || 60;
       this.onTick = function(elapsedTime) {};
-    },
+    }
 
     /**
      * Starts the run loop.
      *
      * @method start
      */
-    start: function() {
+    start() {
       var time = new Date;
       var _this = this;
 
@@ -44,12 +46,12 @@ bb.Runner = (function(window) {
           time = new Date;
         }, 1000 / this.fps);
       }
-    },
+    }
 
     /**
      * Stops the run loop.
      */
-    stop: function() {
+    stop() {
       if (this.fps == 60) {
         displayUnbind(this.runLoop);
       } else {
@@ -57,8 +59,8 @@ bb.Runner = (function(window) {
       }
 
       delete this.runLoop;
-    },
-  });
+    }
+  };
 
   return Runner;
 })(typeof window != "undefined" ? window : global);
