@@ -132,7 +132,7 @@ bb.Entity = (function() {
      * @return {Boolean}
      */
     hasTag: function(name) {
-      return this.world.taggedWith(name).contains(this);
+      return this.world.taggedWith(name).has(this);
     }
   });
 

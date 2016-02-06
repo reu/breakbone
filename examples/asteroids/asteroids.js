@@ -233,9 +233,9 @@ var BoundingSystem = bb.System.extend({
 var CollisionSystem = bb.System.extend({
   init: function() {
     this.parent();
-    this.ships = new bb.Set;
-    this.bullets = new bb.Set;
-    this.asteroids = new bb.Set;
+    this.ships = new Set;
+    this.bullets = new Set;
+    this.asteroids = new Set;
   },
 
   allowEntity: function(entity) {
@@ -249,9 +249,9 @@ var CollisionSystem = bb.System.extend({
   },
 
   onEntityRemoval: function(entity) {
-    this.ships.remove(entity);
-    this.bullets.remove(entity);
-    this.asteroids.remove(entity);
+    this.ships.delete(entity);
+    this.bullets.delete(entity);
+    this.asteroids.delete(entity);
   },
 
   process: function() {
@@ -265,8 +265,8 @@ var CollisionSystem = bb.System.extend({
         var distance = bb.Vector.subtract(asteroid.spatial, bullet.spatial).length();
 
         if (distance < asteroid.spatial.radius + bullet.spatial.radius) {
-          bullets.remove(bullet);
-          asteroids.remove(asteroid);
+          bullets.delete(bullet);
+          asteroids.delete(asteroid);
 
           bullet.remove();
           asteroid.remove();

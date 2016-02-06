@@ -16,14 +16,14 @@ bb.World = (function() {
     init: function() {
       this.systems = [];
 
-      this.entities = new bb.Set;
-      this.disabledEntities = new bb.Set;
+      this.entities = new Set;
+      this.disabledEntities = new Set;
 
-      this.addedEntities = new bb.Set;
-      this.changedEntities = new bb.Set;
-      this.disabledEntities = new bb.Set;
-      this.enabledEntities = new bb.Set;
-      this.removedEntities = new bb.Set;
+      this.addedEntities = new Set;
+      this.changedEntities = new Set;
+      this.disabledEntities = new Set;
+      this.enabledEntities = new Set;
+      this.removedEntities = new Set;
 
       this.components = {};
 
@@ -45,7 +45,7 @@ bb.World = (function() {
      * @private
      */
     check: function(entities, action) {
-      if (entities.length) {
+      if (entities.size) {
         var systems = this.systems;
 
         entities.forEach(function(entity) {
@@ -134,11 +134,11 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     removeEntity: function(entity) {
-      this.entities.remove(entity);
+      this.entities.delete(entity);
       this.removedEntities.add(entity);
 
       for (var tag in this.tags) {
-        this.tags[tag].remove(entity);
+        this.tags[tag].delete(entity);
       }
     },
 
@@ -254,7 +254,7 @@ bb.World = (function() {
      */
     tagEntity: function(entity, tag) {
       if (typeof this.tags[tag] == "undefined") {
-        this.tags[tag] = new bb.Set;
+        this.tags[tag] = new Set;
       }
 
       this.tags[tag].add(entity);
@@ -265,10 +265,10 @@ bb.World = (function() {
      *
      * @method taggedWith
      * @param {String} tag
-     * @return {bb.Set} entities with this tag
+     * @return {Set} entities with this tag
      */
     taggedWith: function(tag) {
-      return this.tags[tag] || new bb.Set;
+      return this.tags[tag] || new Set;
     },
 
     /**
@@ -280,7 +280,7 @@ bb.World = (function() {
     untagEntity: function(entity, tag) {
       var entities = this.tags[tag];
       if (entities) {
-        entities.remove(entity);
+        entities.delete(entity);
       }
     }
   });

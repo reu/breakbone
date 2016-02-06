@@ -30,7 +30,7 @@ describe("bb.World", function() {
   describe("#createEntity", function() {
     it("creates a entity and add it to the world", function() {
       var entity = world.createEntity();
-      expect(world.entities.contains(entity)).to.be(true);
+      expect(world.entities.has(entity)).to.be(true);
     });
   });
 
@@ -38,7 +38,7 @@ describe("bb.World", function() {
     it("adds a entity to the world", function() {
       var entity = new bb.Entity(world);
       world.addEntity(entity);
-      expect(world.entities.contains(entity)).to.be(true);
+      expect(world.entities.has(entity)).to.be(true);
     });
   });
 
@@ -102,7 +102,7 @@ describe("bb.World", function() {
 
       world.addEntityComponent(player, velocityComponent);
 
-      expect(world.changedEntities.contains(player)).to.be(true);
+      expect(world.changedEntities.has(player)).to.be(true);
     });
   });
 
@@ -141,7 +141,7 @@ describe("bb.World", function() {
 
       world.removeEntityComponent(player, velocityComponent);
 
-      expect(world.changedEntities.contains(player)).to.be(true);
+      expect(world.changedEntities.has(player)).to.be(true);
     });
   });
 
@@ -163,7 +163,7 @@ describe("bb.World", function() {
     it("add the entity to the changed entities", function() {
       var entity = world.createEntity();
       world.changeEntity(entity);
-      expect(world.changedEntities.contains(entity)).to.be(true);
+      expect(world.changedEntities.has(entity)).to.be(true);
     });
   });
 
@@ -171,13 +171,13 @@ describe("bb.World", function() {
     it("add the entity to the removed entities", function() {
       var entity = world.createEntity();
       world.removeEntity(entity);
-      expect(world.removedEntities.contains(entity)).to.be(true);
+      expect(world.removedEntities.has(entity)).to.be(true);
     });
 
     it("removes the entity from the entity list", function() {
       var entity = world.createEntity();
       world.removeEntity(entity);
-      expect(world.entities.contains(entity)).to.be(false);
+      expect(world.entities.has(entity)).to.be(false);
     });
 
     it("removes the entity from the tags list", function() {
@@ -187,8 +187,8 @@ describe("bb.World", function() {
 
       world.removeEntity(entity);
 
-      expect(world.taggedWith("player").contains(entity)).to.be(false);
-      expect(world.taggedWith("hero").contains(entity)).to.be(false);
+      expect(world.taggedWith("player").has(entity)).to.be(false);
+      expect(world.taggedWith("hero").has(entity)).to.be(false);
     });
   });
 
@@ -196,7 +196,7 @@ describe("bb.World", function() {
     it("add the entity to the enabled entities", function() {
       var entity = world.createEntity();
       world.enableEntity(entity);
-      expect(world.enabledEntities.contains(entity)).to.be(true);
+      expect(world.enabledEntities.has(entity)).to.be(true);
     });
   });
 
@@ -204,7 +204,7 @@ describe("bb.World", function() {
     it("add the entity to the disabled entities", function() {
       var entity = world.createEntity();
       world.disableEntity(entity);
-      expect(world.disabledEntities.contains(entity)).to.be(true);
+      expect(world.disabledEntities.has(entity)).to.be(true);
     });
   });
 
@@ -323,14 +323,14 @@ describe("bb.World", function() {
       world.tagEntity(player, "hero");
       world.tagEntity(enemy, "enemy");
 
-      expect(world.taggedWith("player").contains(player)).to.be(true);
-      expect(world.taggedWith("player").contains(enemy)).to.be(false);
+      expect(world.taggedWith("player").has(player)).to.be(true);
+      expect(world.taggedWith("player").has(enemy)).to.be(false);
 
-      expect(world.taggedWith("hero").contains(player)).to.be(true);
-      expect(world.taggedWith("hero").contains(enemy)).to.be(false);
+      expect(world.taggedWith("hero").has(player)).to.be(true);
+      expect(world.taggedWith("hero").has(enemy)).to.be(false);
 
-      expect(world.taggedWith("enemy").contains(enemy)).to.be(true);
-      expect(world.taggedWith("enemy").contains(player)).to.be(false);
+      expect(world.taggedWith("enemy").has(enemy)).to.be(true);
+      expect(world.taggedWith("enemy").has(player)).to.be(false);
     });
   });
 
@@ -342,8 +342,8 @@ describe("bb.World", function() {
 
       world.untagEntity(player, "player");
 
-      expect(world.taggedWith("player").contains(player)).to.be(false);
-      expect(world.taggedWith("hero").contains(player)).to.be(true);
+      expect(world.taggedWith("player").has(player)).to.be(false);
+      expect(world.taggedWith("hero").has(player)).to.be(true);
     });
   });
 });

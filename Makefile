@@ -3,7 +3,6 @@ build: concatenate minify
 concatenate:
 	cat src/breakbone.js\
 		src/core/class.js\
-		src/core/set.js\
 		src/core/vector.js\
 		src/keys.js\
 		src/runner.js\
@@ -26,6 +25,6 @@ test:
 	@./node_modules/.bin/mocha --require ./test/support.js ./test/*-test.js ./test/**/*-test.js
 
 test-browser: build
-	@./node_modules/.bin/mocha-phantomjs -p phantomjs test/browser/index.html
+	open test/browser/index.html
 
 .PHONY: concatenate minify build test test-browser

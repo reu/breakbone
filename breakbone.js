@@ -169,109 +169,6 @@ bb.Class = (function() {
 
   return Class;
 })();
-bb.Set = (function() {
-  "use strict";
-
-  /**
-   * Onordered collection of unique objects, which is faster on insertions and removals.
-   *
-   * @class bb.Set
-   * @property {Integer} length the number of items this set contains
-   */
-  var Set = bb.Class.extend({
-    /**
-     * @constructor
-     */
-    init: function() {
-      this.length = 0;
-      this.data = {};
-    },
-
-    /**
-     * Adds an item to the set.
-     * @method add
-     * @param {Object} item
-     * @return {Boolean} true if the item wasn't present on the set, false otherwise
-     */
-    add: function(item) {
-      if (!this.contains(item)) {
-        this.length += 1;
-        this.data[bb.objectId(item)] = item;
-        return true;
-      }
-
-      return false;
-    },
-
-    /**
-     * Removes an item of the set.
-     * @method remove
-     * @param {Object} item
-     * @return {Boolean} true if the item was present on the set, false otherwise
-     */
-    remove: function(item) {
-      if (this.contains(item)) {
-        delete this.data[bb.objectId(item)];
-        this.length -= 1;
-        return true;
-      }
-
-      return false;
-    },
-
-    /**
-     * Checks if the set contains a specific item.
-     * @method contains
-     * @param {Object} item
-     * @return {Boolean} true if the item is present on the set, false otherwise
-     */
-    contains: function(item) {
-      return typeof this.data[bb.objectId(item)] != "undefined";
-    },
-
-    /**
-     * Removes all the items from the set.
-     * @method clear
-     */
-    clear: function() {
-      this.data = {};
-      this.length = 0;
-    },
-
-    /**
-     * Iterates over the set, yelling all the items.
-     * @method forEach
-     * @param {Callback} callback
-     * @param {Scope} scope
-     * @example
-     *     set.forEach(function(item) {
-     *       console.log(item);
-     *     });
-     */
-    forEach: function(callback, scope) {
-      scope = scope || this;
-
-      for (var key in this.data) {
-        callback.call(scope, this.data[key]);
-      }
-    },
-
-    /**
-     * Converts the set to an array.
-     * @method toArray
-     * @return {Array}
-     */
-    toArray: function() {
-      var array = [];
-      this.forEach(function(item) {
-        array.push(item);
-      });
-      return array;
-    }
-  });
-
-  return Set;
-})();
 bb.Vector = (function() {
   "use strict";
 
@@ -629,7 +526,7 @@ bb.Entity = (function() {
      * @return {Boolean}
      */
     hasTag: function(name) {
-      return this.world.taggedWith(name).contains(this);
+      return this.world.taggedWith(name).has(this);
     }
   });
 
@@ -1018,14 +915,14 @@ bb.World = (function() {
     init: function() {
       this.systems = [];
 
-      this.entities = new bb.Set;
-      this.disabledEntities = new bb.Set;
+      this.entities = new Set;
+      this.disabledEntities = new Set;
 
-      this.addedEntities = new bb.Set;
-      this.changedEntities = new bb.Set;
-      this.disabledEntities = new bb.Set;
-      this.enabledEntities = new bb.Set;
-      this.removedEntities = new bb.Set;
+      this.addedEntities = new Set;
+      this.changedEntities = new Set;
+      this.disabledEntities = new Set;
+      this.enabledEntities = new Set;
+      this.removedEntities = new Set;
 
       this.components = {};
 
@@ -1047,7 +944,7 @@ bb.World = (function() {
      * @private
      */
     check: function(entities, action) {
-      if (entities.length) {
+      if (entities.size) {
         var systems = this.systems;
 
         entities.forEach(function(entity) {
@@ -1136,11 +1033,11 @@ bb.World = (function() {
      * @param {bb.Entity} entity
      */
     removeEntity: function(entity) {
-      this.entities.remove(entity);
+      this.entities.delete(entity);
       this.removedEntities.add(entity);
 
       for (var tag in this.tags) {
-        this.tags[tag].remove(entity);
+        this.tags[tag].delete(entity);
       }
     },
 
@@ -1256,7 +1153,7 @@ bb.World = (function() {
      */
     tagEntity: function(entity, tag) {
       if (typeof this.tags[tag] == "undefined") {
-        this.tags[tag] = new bb.Set;
+        this.tags[tag] = new Set;
       }
 
       this.tags[tag].add(entity);
@@ -1267,10 +1164,10 @@ bb.World = (function() {
      *
      * @method taggedWith
      * @param {String} tag
-     * @return {bb.Set} entities with this tag
+     * @return {Set} entities with this tag
      */
     taggedWith: function(tag) {
-      return this.tags[tag] || new bb.Set;
+      return this.tags[tag] || new Set;
     },
 
     /**
@@ -1282,7 +1179,7 @@ bb.World = (function() {
     untagEntity: function(entity, tag) {
       var entities = this.tags[tag];
       if (entities) {
-        entities.remove(entity);
+        entities.delete(entity);
       }
     }
   });
@@ -1322,7 +1219,7 @@ bb.System = (function() {
      * @constructor
      */
     init: function() {
-      this.entities = new bb.Set;
+      this.entities = new Set;
     },
 
     /**
@@ -1394,7 +1291,10 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     addEntity: function(entity) {
-      if (this.entities.add(entity)) {
+      if (this.entities.has(entity)) {
+        this.entities.add(entity);
+      } else {
+        this.entities.add(entity);
         this.onEntityAdd(entity);
       }
     },
@@ -1406,7 +1306,7 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     removeEntity: function(entity) {
-      if (this.entities.remove(entity)) {
+      if (this.entities.delete(entity)) {
         this.onEntityRemoval(entity);
       }
     },
@@ -1445,7 +1345,7 @@ bb.System = (function() {
      */
     entityChanged: function(entity) {
       if (this.allowEntity(entity)) {
-        if (this.entities.contains(entity)) {
+        if (this.entities.has(entity)) {
           this.onEntityChange(entity);
         } else {
           this.addEntity(entity);
@@ -1473,7 +1373,7 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     entityDisabled: function(entity) {
-      if (this.entities.remove(entity)) {
+      if (this.entities.delete(entity)) {
         this.onEntityDisable(entity);
       }
     }

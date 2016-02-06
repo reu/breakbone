@@ -31,7 +31,7 @@ bb.System = (function() {
      * @constructor
      */
     init: function() {
-      this.entities = new bb.Set;
+      this.entities = new Set;
     },
 
     /**
@@ -103,7 +103,10 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     addEntity: function(entity) {
-      if (this.entities.add(entity)) {
+      if (this.entities.has(entity)) {
+        this.entities.add(entity);
+      } else {
+        this.entities.add(entity);
         this.onEntityAdd(entity);
       }
     },
@@ -115,7 +118,7 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     removeEntity: function(entity) {
-      if (this.entities.remove(entity)) {
+      if (this.entities.delete(entity)) {
         this.onEntityRemoval(entity);
       }
     },
@@ -154,7 +157,7 @@ bb.System = (function() {
      */
     entityChanged: function(entity) {
       if (this.allowEntity(entity)) {
-        if (this.entities.contains(entity)) {
+        if (this.entities.has(entity)) {
           this.onEntityChange(entity);
         } else {
           this.addEntity(entity);
@@ -182,7 +185,7 @@ bb.System = (function() {
      * @param {bb.Entity} entity
      */
     entityDisabled: function(entity) {
-      if (this.entities.remove(entity)) {
+      if (this.entities.delete(entity)) {
         this.onEntityDisable(entity);
       }
     }
