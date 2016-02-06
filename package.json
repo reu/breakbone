@@ -26,5 +26,17 @@
     "expect.js": "latest",
     "sinon": "latest",
     "uglify-js": "git+https://github.com/mishoo/UglifyJS2.git#harmony"
+  },
+  "testling": {
+    "harness": "mocha-bdd",
+    "files": [
+      "test/support.js",
+      "test/*-test.js",
+      "test/**/*-test.js"
+    ],
+    "browsers": [
+      "chrome/latest",
+      "firefox/latest"
+    ]
   }
 }
