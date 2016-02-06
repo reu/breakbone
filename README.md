@@ -6,6 +6,12 @@ Breakbone is a javascript Entity-System based game engine.
 
 Breakbone is a Entity Component System based game framework. The ideas were extracted from [this fantastic Martin Adam's blog post](http://t-machine.org/index.php/2007/09/03/entity-systems-are-the-future-of-mmog-development-part-1/).
 
+## Examples
+
+You can find the sources of the examples in the [repository's examples folder](https://github.com/reu/breakbone/tree/master/examples).
+
+* [Asteroids](https://reu.github.io/breakbone/examples/asteroids)
+
 ## Todo
 
 The framework is in a pre-alpha state, and as today, there is only the basic entity system framework implemented, as some base classes and data structures. Even not perfect yet, the project aims to be very well documentated as well fully unit tested.
