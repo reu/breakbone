@@ -367,7 +367,7 @@ class InputSystem extends bb.InputSystem {
 class WeaponSystem extends bb.System {
   constructor() {
     super();
-    this.weaponsTimers = {};
+    this.weaponsTimers = new WeakMap;
   }
 
   allowEntity(entity) {
@@ -375,11 +375,11 @@ class WeaponSystem extends bb.System {
   }
 
   onEntityAdd(entity) {
-    this.weaponsTimers[entity.weapon] = 0;
+    this.weaponsTimers.set(entity.weapon, 0);
   }
 
   onEntityRemoval(entity) {
-    delete this.weaponsTimers[entity.weapon];
+    this.weaponsTimers.delete(entity.weapon);
   }
 
   process() {
@@ -387,8 +387,11 @@ class WeaponSystem extends bb.System {
   }
 
   shoot(entity) {
-    if (entity.weapon.triggering && this.weaponsTimers[entity.weapon] <= 0) {
-      this.weaponsTimers[entity.weapon] = entity.weapon.rate;
+    var weaponTimer = this.weaponsTimers.get(entity.weapon);
+
+    if (entity.weapon.triggering && weaponTimer <= 0) {
+      this.weaponsTimers.set(entity.weapon, entity.weapon.rate);
+      weaponTimer = entity.weapon.rate;
 
       var bullet = this.world.createEntity();
       bullet.tag("bullet");
@@ -407,7 +410,7 @@ class WeaponSystem extends bb.System {
             .addComponent(new Expire(60 * 3));
     }
 
-    this.weaponsTimers[entity.weapon] -= 1;
+    this.weaponsTimers.set(entity.weapon, weaponTimer - 1);
   }
 };
 
