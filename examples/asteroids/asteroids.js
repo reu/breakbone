@@ -129,12 +129,15 @@ class AsteroidSystem extends bb.System {
       var asteroid = this.world.createEntity();
       asteroid.tag("asteroid");
 
-      var radius = 30;
+      var dx = this.area.width / 2,
+          dy = this.area.height / 2,
+          distance = Math.sqrt(dx*dx + dy*dy),
+          spawnAngle = Math.random() * (Math.PI * 2);
 
       var spatial = new Spatial;
-      spatial.x = -150 + Math.random() * this.area.width + 300;
-      spatial.x = -150 + Math.random() * this.area.height + 300;
-      spatial.radius = radius;
+      spatial.x = Math.cos(spawnAngle) * distance + this.area.width / 2;
+      spatial.y = Math.sin(spawnAngle) * distance + this.area.height / 2;
+      spatial.radius = 30;
 
       var direction = bb.Vector.subtract({
         x: Math.random() * this.area.width,
@@ -148,8 +151,7 @@ class AsteroidSystem extends bb.System {
       velocity.damping = 1;
 
       asteroid.addComponent(spatial)
-              .addComponent(new BoundaryRemove)
-              .addComponent(new Asteroid(radius))
+              .addComponent(new Asteroid(spatial.radius))
               .addComponent(new Collidable)
               .addComponent(velocity)
               .addComponent(new Renderable("asteroid"));
@@ -208,11 +210,21 @@ class BoundingSystem extends bb.System {
   }
 
   allowEntity(entity) {
-    return entity.hasComponent("spatial") &&
-           (
-             entity.hasComponent("boundaryWrap") ||
-             entity.hasComponent("boundaryRemove")
-           );
+    if (!entity.hasComponent("spatial")) return false;
+
+    var x = entity.spatial.x,
+        y = entity.spatial.y,
+        radius = entity.spatial.radius;
+
+    if (entity.hasComponent("boundaryWrap") ||
+        entity.hasComponent("boundaryRemove")) {
+      return x + radius >= 0 &&
+             x - radius <= this.boundary.width &&
+             y - radius >= 0 &&
+             y + radius <= this.boundary.height
+    } else {
+      return false;
+    }
   }
 
   process() {
