@@ -34,6 +34,7 @@ class Velocity extends bb.Vector {
 };
 
 class BoundaryWrap extends bb.Component {};
+class BoundaryRemove extends bb.Component {};
 
 class ThrustEngine extends bb.Component {
   constructor() {
@@ -147,6 +148,7 @@ class AsteroidSystem extends bb.System {
       velocity.damping = 1;
 
       asteroid.addComponent(spatial)
+              .addComponent(new BoundaryRemove)
               .addComponent(new Asteroid(radius))
               .addComponent(new Collidable)
               .addComponent(velocity)
@@ -207,27 +209,49 @@ class BoundingSystem extends bb.System {
 
   allowEntity(entity) {
     return entity.hasComponent("spatial") &&
-           entity.hasComponent("boundaryWrap");
+           (
+             entity.hasComponent("boundaryWrap") ||
+             entity.hasComponent("boundaryRemove")
+           );
   }
 
   process() {
     this.entities.forEach(function(entity) {
-      if (entity.spatial.x < 0) {
-        entity.spatial.x = this.boundary.width;
+      var spatial = entity.spatial;
+
+      if (spatial.x + spatial.radius < 0) {
+        this.hitBound(entity, "left");
+      } else if (spatial.x - spatial.radius > this.boundary.width) {
+        this.hitBound(entity, "right");
       }
 
-      if (entity.spatial.x > this.boundary.width) {
-        entity.spatial.x = 0;
-      }
-
-      if (entity.spatial.y < 0) {
-        entity.spatial.y = this.boundary.height;
-      }
-
-      if (entity.spatial.y > this.boundary.height) {
-        entity.spatial.y = 0;
+      if (spatial.y + spatial.radius < 0) {
+        this.hitBound(entity, "top");
+      } else if (spatial.y - spatial.radius > this.boundary.height) {
+        this.hitBound(entity, "bottom");
       }
     }.bind(this));
+  }
+
+  hitBound(entity, bound) {
+    if (entity.hasComponent("boundaryRemove"))
+      entity.remove();
+    else if (entity.hasComponent("boundaryWrap")) {
+      switch (bound) {
+        case "left":
+          entity.spatial.x = this.boundary.width + entity.spatial.radius;
+          break;
+        case "right":
+          entity.spatial.x = -entity.spatial.radius;
+          break;
+        case "top":
+          entity.spatial.y = this.boundary.height + entity.spatial.radius;
+          break;
+        case "bottom":
+          entity.spatial.y = -entity.spatial.radius;
+          break;
+      }
+    }
   }
 };
 
@@ -293,6 +317,7 @@ class CollisionSystem extends bb.System {
               velocity.damping = 1;
 
               asteroidFragment.addComponent(spatial)
+                              .addComponent(new BoundaryRemove)
                               .addComponent(new Asteroid(spatial.radius))
                               .addComponent(new Collidable)
                               .addComponent(velocity)
@@ -405,6 +430,7 @@ class WeaponSystem extends bb.System {
 
       bullet.addComponent(spatial)
             .addComponent(velocity)
+            .addComponent(new BoundaryRemove)
             .addComponent(new Collidable)
             .addComponent(new Renderable("bullet"))
             .addComponent(new Expire(60 * 3));
