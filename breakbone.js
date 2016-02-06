@@ -780,7 +780,7 @@ bb.World = (function() {
       this.removedEntities = new Set;
 
       this.components = new Map;
-      this.tags = {};
+      this.tags = new Map;
     }
 
     /**
@@ -894,8 +894,8 @@ bb.World = (function() {
         components.delete(entity);
       }
 
-      for (var tag in this.tags) {
-        this.tags[tag].delete(entity);
+      for (var tags of this.tags.values()) {
+        tags.delete(entity);
       }
     }
 
@@ -1003,11 +1003,7 @@ bb.World = (function() {
      * @param {String} tag
      */
     tagEntity(entity, tag) {
-      if (typeof this.tags[tag] == "undefined") {
-        this.tags[tag] = new Set;
-      }
-
-      this.tags[tag].add(entity);
+      this.taggedWith(tag).add(entity);
     }
 
     /**
@@ -1018,7 +1014,11 @@ bb.World = (function() {
      * @return {Set} entities with this tag
      */
     taggedWith(tag) {
-      return this.tags[tag] || new Set;
+      if (!this.tags.has(tag)) {
+        this.tags.set(tag, new WeakSet);
+      }
+
+      return this.tags.get(tag);
     }
 
     /**
@@ -1028,10 +1028,7 @@ bb.World = (function() {
      * @param {String} tag
      */
     untagEntity(entity, tag) {
-      var entities = this.tags[tag];
-      if (entities) {
-        entities.delete(entity);
-      }
+      this.taggedWith(tag).delete(entity);
     }
   };
 
