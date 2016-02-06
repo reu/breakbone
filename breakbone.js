@@ -5,29 +5,6 @@ bb = (function() {
    * @module bb
    */
   var bb = {};
-
-  /**
-   * Creates or returns a object id
-   *
-   * @function objectId
-   * @returns {Number} id of the object
-   */
-  var nextObjectId = 0;
-  bb.objectId = function(object) {
-    if (object) {
-      if (typeof object.objectId == "undefined") {
-        Object.defineProperty(object, "objectId", {
-          enumerable: false,
-          writable: false,
-          configurable: false,
-          value: nextObjectId++
-        });
-      }
-
-      return object.objectId;
-    }
-  }
-
   return bb;
 })();
 bb.Vector = (function() {
@@ -258,6 +235,8 @@ bb.Runner = (function(window) {
 bb.Entity = (function() {
   "use strict";
 
+  var nextObjectId = 0;
+
   /**
    * A entity represent every "thing" of your game.
    *
@@ -271,8 +250,14 @@ bb.Entity = (function() {
      * @param {bb.World} world
      */
     constructor(world) {
+      Object.defineProperty(this, "id", {
+        enumerable: true,
+        writable: false,
+        configurable: false,
+        value: nextObjectId++
+      });
+
       this.world = world;
-      this.id = bb.objectId(this);
     }
 
     /**
@@ -296,7 +281,6 @@ bb.Entity = (function() {
     addComponent(component) {
       this.world.addEntityComponent(this, component);
 
-      var entity = this;
       Object.defineProperty(this, component.type, {
         enumerable: false,
         configurable: true,

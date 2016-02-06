@@ -1,6 +1,8 @@
 bb.Entity = (function() {
   "use strict";
 
+  var nextObjectId = 0;
+
   /**
    * A entity represent every "thing" of your game.
    *
@@ -14,8 +16,14 @@ bb.Entity = (function() {
      * @param {bb.World} world
      */
     constructor(world) {
+      Object.defineProperty(this, "id", {
+        enumerable: true,
+        writable: false,
+        configurable: false,
+        value: nextObjectId++
+      });
+
       this.world = world;
-      this.id = bb.objectId(this);
     }
 
     /**
