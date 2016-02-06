@@ -53,7 +53,7 @@ class ThrustEngine extends bb.Component {
 class Weapon extends bb.Component {
   constructor(rate) {
     super();
-    this.rate = rate || 1;
+    this.rate = rate || 10;
     this.triggering = true;
   }
 
@@ -206,7 +206,8 @@ class BoundingSystem extends bb.System {
   }
 
   allowEntity(entity) {
-    return entity.hasComponent("spatial") && entity.hasComponent("boundaryWrap");
+    return entity.hasComponent("spatial") &&
+           entity.hasComponent("boundaryWrap");
   }
 
   process() {
@@ -262,7 +263,10 @@ class CollisionSystem extends bb.System {
 
     asteroids.forEach(function(asteroid) {
       bullets.forEach(function(bullet) {
-        var distance = bb.Vector.subtract(asteroid.spatial, bullet.spatial).length();
+        var distance = bb.Vector.subtract(
+          asteroid.spatial,
+          bullet.spatial
+        ).length();
 
         if (distance < asteroid.spatial.radius + bullet.spatial.radius) {
           bullets.delete(bullet);
@@ -276,9 +280,16 @@ class CollisionSystem extends bb.System {
               var asteroidFragment = world.createEntity();
               asteroidFragment.tag("asteroid");
 
-              var spatial = new Spatial(asteroid.spatial.x, asteroid.spatial.y, asteroid.spatial.radius / 2);
+              var spatial = new Spatial(
+                asteroid.spatial.x,
+                asteroid.spatial.y,
+                asteroid.spatial.radius / 2
+              );
 
-              var velocity = new Velocity(Math.cos(Math.random() * Math.PI * 2), Math.sin(Math.random() * Math.PI * 2));
+              var velocity = new Velocity(
+                Math.cos(Math.random() * Math.PI * 2),
+                Math.sin(Math.random() * Math.PI * 2)
+              );
               velocity.damping = 1;
 
               asteroidFragment.addComponent(spatial)
@@ -298,7 +309,10 @@ class CollisionSystem extends bb.System {
       });
 
       ships.forEach(function(ship) {
-        var distance = bb.Vector.subtract(asteroid.spatial, ship.spatial).length();
+        var distance = bb.Vector.subtract(
+          asteroid.spatial,
+          ship.spatial
+        ).length();
 
         if (distance < asteroid.spatial.radius + ship.spatial.radius) {
           ship.addComponent(new Respawn(60 * 3));
@@ -376,24 +390,21 @@ class WeaponSystem extends bb.System {
     if (entity.weapon.triggering && this.weaponsTimers[entity.weapon] <= 0) {
       this.weaponsTimers[entity.weapon] = entity.weapon.rate;
 
-      [-20, -10, 0, 10, 20].map(function(degree) {
-        return degree + ((Math.random() * 10) - (Math.random() * 10));
-      }).map(function(degree) {
-        return degree * (Math.PI / 180);
-      }).forEach(function(angle) {
-        var bullet = this.world.createEntity();
-        bullet.tag("bullet");
+      var bullet = this.world.createEntity();
+      bullet.tag("bullet");
 
-        var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
-        var velocity = new Velocity(Math.cos(entity.spatial.rotation + angle), Math.sin(entity.spatial.rotation + angle), 2).multiply(10);
-        velocity.damping = 1;
+      var spatial = new Spatial(entity.spatial.x, entity.spatial.y, 2);
+      var velocity = new Velocity(
+        Math.cos(entity.spatial.rotation),
+        Math.sin(entity.spatial.rotation),
+        1
+      ).multiply(10);
 
-        bullet.addComponent(spatial)
-              .addComponent(velocity)
-              .addComponent(new Collidable)
-              .addComponent(new Renderable("bullet"))
-              .addComponent(new Expire(60 * 3));
-      }, this);
+      bullet.addComponent(spatial)
+            .addComponent(velocity)
+            .addComponent(new Collidable)
+            .addComponent(new Renderable("bullet"))
+            .addComponent(new Expire(60 * 3));
     }
 
     this.weaponsTimers[entity.weapon] -= 1;
@@ -433,12 +444,17 @@ class ShipRespawnSystem extends bb.System {
       entity.respawn.timer -= 1;
 
       if (entity.respawn.timer == 0) {
-          entity.addComponent(new Spatial(respawnArea.width / 2, respawnArea.height / 2))
-                .addComponent(new Velocity)
-                .addComponent(entity.respawn.input)
-                .addComponent(new Collidable)
-                .addComponent(new Weapon)
-                .removeComponent("respawn");
+        var spatial = new Spatial(
+          respawnArea.width / 2,
+          respawnArea.height / 2
+        );
+
+        entity.addComponent(spatial)
+              .addComponent(new Velocity)
+              .addComponent(entity.respawn.input)
+              .addComponent(new Collidable)
+              .addComponent(new Weapon)
+              .removeComponent("respawn");
       }
     });
   }
@@ -513,9 +529,12 @@ class RenderingSystem extends bb.System {
     this.ctx.translate(asteroid.spatial.x, asteroid.spatial.y);
     this.ctx.rotate(asteroid.spatial.rotation);
     this.ctx.moveTo(asteroid.spatial.radius, 0);
-    for (var i = 0, points = asteroid.asteroid.points, length = points.length; i < length; i++) {
+
+    var points = asteroid.asteroid.points;
+    for (var i = 0; i < points.length; i++) {
       this.ctx.lineTo(points[i].x, points[i].y);
     }
+
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.restore();
@@ -548,7 +567,13 @@ class Game {
 
     var player = world.createEntity();
     player.tag("ship");
-    player.addComponent(new Spatial(this.ctx.canvas.width / 2, this.ctx.canvas.height / 2))
+
+    var initialPosition = new Spatial(
+      this.ctx.canvas.width / 2,
+      this.ctx.canvas.height / 2
+    )
+
+    player.addComponent(initialPosition)
           .addComponent(new Velocity)
           .addComponent(new Weapon)
           .addComponent(commands)
