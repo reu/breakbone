@@ -1093,7 +1093,8 @@ bb.World = (function() {
      */
     processSystems: function() {
       for (var i = 0, length = this.systems.length; i < length; i++) {
-        this.systems[i].process();
+        var system = this.systems[i];
+        if (system.shouldProcess()) system.process();
       }
     },
 
@@ -1344,6 +1345,14 @@ bb.System = (function() {
     },
 
     /**
+     * Checks if this system should be processed.
+     * @method shouldProcess
+     */
+    shouldProcess: function() {
+      return true;
+    },
+
+    /**
      * Callback that is called when an entity is added to this system.
      * @event onEntityAdd
      * @param {bb.Entity} entity
@@ -1488,6 +1497,8 @@ bb.VoidSystem = (function() {
     entityEnabled: function() {},
     entityDisabled: function() {}
   });
+
+  return VoidSystem;
 })();
 bb.InputSystem = (function() {
   "use strict";
